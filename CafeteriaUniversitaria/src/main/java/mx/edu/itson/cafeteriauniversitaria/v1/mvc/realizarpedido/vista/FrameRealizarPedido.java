@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -20,11 +21,22 @@ import javax.swing.JScrollPane;
 
 import mx.edu.itson.cafeteriauniversitaria.dtonegocios.*;
 
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.observadores.RealizarPedidoObserver;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.observadores.vista.PersonalizarProductoObserver;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.PedidoHandler;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.dialogo.ConfirmacionDialogo;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.dialogo.PedidoCompletadoDialogo;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel.ConfirmacionAdicionProductoPanel;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel.ProductosPanel;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel.SeleccionComplementosPanel;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel.TamanosPanel;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel.VariantesPanel;
+
 /**
  *
  * @author Saul Neri
  */
-public class FrameRealizarPedido extends javax.swing.JFrame {
+public class FrameRealizarPedido extends JFrame implements PersonalizarProductoObserver, RealizarPedidoObserver {
 
     private List<ProductoDTO> productos;
     private DetallePedidoDTO detalleAEliminar;
@@ -48,7 +60,7 @@ public class FrameRealizarPedido extends javax.swing.JFrame {
     public FrameRealizarPedido(List<ProductoDTO> productos) {
         initComponents();
 
-        this.setTitle("Realizar Pedido");
+        //this.setTitle("Realizar Pedido");
         
         this.productos = productos;
 
@@ -59,8 +71,8 @@ public class FrameRealizarPedido extends javax.swing.JFrame {
 
         this.productosPanel = new ProductosPanel(this, productos);
 
-        this.mostrarProductosPanel();
-        this.actualizarListaPedido();
+        //this.mostrarProductosPanel();
+        //this.actualizarListaPedido();
     }
     
     
@@ -388,7 +400,7 @@ public class FrameRealizarPedido extends javax.swing.JFrame {
         this.pedido.getDetallesPedido().remove(this.detalleAEliminar);
         this.detalleAEliminar = null;
         this.eliminarDetalleBtn.setEnabled(false);
-        this.actualizarListaPedido();
+        //this.actualizarListaPedido();
     }//GEN-LAST:event_eliminarDetalleBtnActionPerformed
 
     private void completarPedidoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_completarPedidoBtnActionPerformed
@@ -406,11 +418,36 @@ public class FrameRealizarPedido extends javax.swing.JFrame {
             
             this.pedido.reiniciarDetalleActual();
             this.pedido.getDetallesPedido().clear();
-            this.actualizarListaPedido();
-            this.mostrarProductosPanel();
+            //this.actualizarListaPedido();
+            //this.mostrarProductosPanel();
         }
     }//GEN-LAST:event_completarPedidoBtnActionPerformed
 
+    @Override
+    public void seleccionarProducto(ProductoDTO producto) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void seleccionarTamano(TamanoDTO tamano) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void seleccionarVariante(VarianteProductoDTO variante) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void confirmarSeleccionComplementos(List<OpcionComplementoDTO> complementos) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void confirmarRealizacionPedido() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton completarPedidoBtn;
@@ -428,4 +465,5 @@ public class FrameRealizarPedido extends javax.swing.JFrame {
     private javax.swing.JLabel montoTotalDetalleLabel;
     private javax.swing.JPanel panelFlujo;
     // End of variables declaration//GEN-END:variables
+
 }

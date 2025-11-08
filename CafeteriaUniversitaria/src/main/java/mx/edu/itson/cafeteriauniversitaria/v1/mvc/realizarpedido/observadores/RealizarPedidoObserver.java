@@ -8,6 +8,6 @@ package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.observadores;
  *
  * @author Saul Neri
  */
-public interface RealizarPedidoObservador {
+public interface RealizarPedidoObserver {
     
 }

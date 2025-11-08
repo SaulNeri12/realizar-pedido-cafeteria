@@ -4,15 +4,15 @@
  */
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.controlador;
 
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.observadores.RealizarPedidoObserver;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.modelo.ManejadorPedido;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.observadores.RealizarPedidoObservador;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.FrameRealizarPedido;
 
 /**
  *
  * @author Saul Neri
  */
-public class ControladorRealizarPedido implements RealizarPedidoObservador {
+public class ControladorRealizarPedido implements RealizarPedidoObserver {
     private FrameRealizarPedido vista;
     private ManejadorPedido modelo;
     
