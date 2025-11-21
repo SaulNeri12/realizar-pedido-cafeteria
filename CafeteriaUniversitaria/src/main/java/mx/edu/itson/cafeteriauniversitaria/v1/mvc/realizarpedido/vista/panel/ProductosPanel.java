@@ -1,70 +1,74 @@
-
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel;
 
 import java.awt.GridLayout;
 import java.util.List;
 import mx.edu.itson.cafeteriauniversitaria.dtonegocios.ProductoDTO;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.controlador.RealizarPedidoControlador;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.PedidoHandler;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.FrameRealizarPedido;
 
 /**
- * Panel en el cual se muestran todos los productos en paneles de tipo "@ProductoPanel".
+ * Panel en el cual se muestran todos los productos en paneles de tipo
+ * "@ProductoPanel".
+ *
  * @author Saul Neri
  */
 public class ProductosPanel extends javax.swing.JPanel {
 
+    private RealizarPedidoControlador controlador;
     private List<ProductoDTO> productos;
-    private FrameRealizarPedido parent;
     private ProductoDTO productoSeleccionado;
-    
-    private PedidoHandler pedido = PedidoHandler.getInstance();
-    
+
     /**
      * Creates new form ProductosPanel
      */
-    public ProductosPanel(FrameRealizarPedido parent, List<ProductoDTO> productos) {
+    public ProductosPanel(List<ProductoDTO> productos) {
         initComponents();
-        
+
         this.productos = productos;
-        this.parent = parent;
         this.productoSeleccionado = productoSeleccionado;
-        
+
         this.listaProductosGrid.setLayout(new GridLayout(3, 2, 10, 10));
-       
-        
+
         this.cargarProductos();
     }
     
+    public void setControlador(RealizarPedidoControlador controlador) {
+        this.controlador = controlador;
+    }
+
     /**
-     * Carga las tarjetas a traves de la lista de productos recibida y los muestra
-     * en paneles de tipo "@ProductoPanel".
+     * Carga las tarjetas a traves de la lista de productos recibida y los
+     * muestra en paneles de tipo "@ProductoPanel".
      */
     private void cargarProductos() {
-        
+
         //this.parent.getPanelFlujo().removeAll();
-        
-        for (ProductoDTO prdct: this.productos) {
+        for (ProductoDTO prdct : this.productos) {
             ProductoPanel panel = new ProductoPanel(this, prdct);
             // TODO: (1.0) anadirles un listener aqui...
             this.listaProductosGrid.add(panel);
             //this.parent.getPanelFlujo().revalidate();
             //this.parent.getPanelFlujo().repaint();
         }
-        
+
         this.listaProductosGrid.revalidate();
         this.listaProductosGrid.repaint();
     }
-    
+
     /**
-     * Usado por ProductoPanel para habilitar el boton "Siguiente" de este panel (ProductosPanel).
+     * Usado por ProductoPanel para habilitar el boton "Siguiente" de este panel
+     * (ProductosPanel).
+     *
      * @param productoSeleccionado Producto del "ProductoPanel" seleccionado.
      */
     public void habilitarBotonSiguiente(ProductoDTO productoSeleccionado) {
         this.productoSeleccionado = productoSeleccionado;
-        this.pedido.getDetalleActual().producto = productoSeleccionado;
+        //this.pedido.getDetalleActual().producto = productoSeleccionado;
         this.siguientePanelBtn.setEnabled(true);
         this.seleccionadoLabel.setText("Seleccionado: " + productoSeleccionado.nombre);
         //this.parent.actualizarMontoTotalDetallePedido();
+        
     }
 
     /**
@@ -160,8 +164,9 @@ public class ProductosPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void siguientePanelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_siguientePanelBtnActionPerformed
-        this.pedido.getDetalleActual().producto = productoSeleccionado;
-        //this.parent.mostrarTamanosProductoPanel(productoSeleccionado);
+        if (this.controlador != null && this.productoSeleccionado != null) {
+            this.controlador.onProductoSeleccionado(this.productoSeleccionado);
+        }
     }//GEN-LAST:event_siguientePanelBtnActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

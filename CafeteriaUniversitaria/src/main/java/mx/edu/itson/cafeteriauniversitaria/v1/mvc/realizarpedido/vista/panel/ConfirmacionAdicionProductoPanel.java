@@ -6,6 +6,7 @@ package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel;
 
 import mx.edu.itson.cafeteriauniversitaria.dtonegocios.DetallePedidoDTO;
 import mx.edu.itson.cafeteriauniversitaria.dtonegocios.OpcionComplementoDTO;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.controlador.RealizarPedidoControlador;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.PedidoHandler;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.FrameRealizarPedido;
 
@@ -14,47 +15,76 @@ import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.FrameReal
  * @author Saul Neri
  */
 public class ConfirmacionAdicionProductoPanel extends javax.swing.JPanel {
+    private RealizarPedidoControlador controlador;
 
-    private FrameRealizarPedido parent;
-    //private DetallePedidoDTO detalle = pedido.getDetalleActual();
-
-    private PedidoHandler pedido = PedidoHandler.getInstance();
-    
-    private DetallePedidoDTO detalle;
+    // ELIMINAMOS: private FrameRealizarPedido parent;
+    // ELIMINAMOS: private PedidoHandler pedido = PedidoHandler.getInstance();
+    // ELIMINAMOS: private DetallePedidoDTO detalle;
 
     /**
-     * Creates new form ConfirmacionAdicionProductoPanel
+     * Constructor simple y vacío.
+     * Esto corrige el NullPointerException al inicializar el panel.
      */
-    public ConfirmacionAdicionProductoPanel(FrameRealizarPedido parent) {
+    public ConfirmacionAdicionProductoPanel() {
         initComponents();
-        this.parent = parent;
-
-        // 2. GUARDA EL DETALLE BUENO EN TU VARIABLE DE INSTANCIA
-        // (Este es el único momento en que sabes que pedido.getDetalleActual() es correcto)
-        this.detalle = pedido.getDetalleActual(); 
-
-        // 3. USA 'this.detalle' (tu variable) EN LUGAR DE 'pedido.getDetalleActual()'
-        
-        // Esto usa tu variable 'this.detalle'
-        System.out.println(this.detalle.complementos); // (Tu Log 4)
-        this.productoResumenLabel.setText(this.detalle.toString());
-
-        //this.parent.actualizarMontoTotalDetallePedido();
-        
-        // Pásale 'this.detalle' al método para que también lo use
-        this.cargarComplementosLabel(this.detalle);
+        // ¡NO SE HACE NINGUNA LÓGICA DE DATOS AQUÍ!
     }
 
-    // 4. Modifica el método para que reciba el detalle
+    public void setControlador(RealizarPedidoControlador controlador) {
+        this.controlador = controlador;
+    }
+
+    /**
+     * Método para cargar los datos en la vista.
+     * @param detalle El DetallePedidoDTO que viene del Modelo/Controlador.
+     */
+    public void cargarDatos(DetallePedidoDTO detalle) {
+
+        if (detalle == null || detalle.producto == null) {
+            this.productoResumenLabel.setText("Error: Producto no disponible");
+            this.complementosLabel.setText("N/A");
+            //this.montoTotalLabel.setText("$0.00");
+            return;
+        }
+
+        // 1. Crear el resumen del producto, usando el único label que tienes para esto:
+        String tamano = (detalle.tamano != null) ? detalle.tamano.nombre : "Estándar";
+
+        // El precio final de ESE detalle (debe coincidir con el Label de abajo)
+        float monto = detalle.obtenerMontoTotal();
+
+        this.productoResumenLabel.setText(
+                String.format("%s (%s) - $%.2f",
+                        detalle.producto.nombre,
+                        tamano,
+                        monto)
+        );
+
+        // 2. Poblar lista de complementos (Usamos el método que ya tienes)
+        this.cargarComplementosLabel(detalle);
+
+        // 3. Mostrar el monto total del producto (si tienes este Label)
+        // El 'montoTotalLabel' en tu form parece ser para el total del pedido,
+        // pero lo usaremos para el detalle, ya que solo muestras un producto.
+        // Si tienes otro Label para el monto total del detalle, úsalo. Si no, usa este:
+        // ELIMINADO para evitar conflicto. Usamos el monto en productoResumenLabel.
+        // Si tu form SÍ tiene un JLabel llamado 'montoTotalLabel' para el total de este DETALLE, actívalo.
+        // (Revisando tu form, ese label no está claro, mejor usamos productoResumenLabel para el monto).
+
+        this.revalidate();
+        this.repaint();
+    }
+
+    /**
+     * El método de TU lógica, modificado para recibir el detalle.
+     */
     private void cargarComplementosLabel(DetallePedidoDTO detalle) {
-        // 5. Usa el objeto 'detalle' que recibiste, NO llames a pedido.getDetalleActual()
         if (detalle == null || detalle.complementos == null || detalle.complementos.isEmpty()) {
             this.complementosLabel.setText("Sin complementos");
         } else {
             String texto = "<html>";
-            // Itera sobre el detalle recibido
-            for (OpcionComplementoDTO complemento : detalle.complementos) { 
-                texto += String.format("%s x%d<br>",
+            for (OpcionComplementoDTO complemento : detalle.complementos) {
+                texto += String.format("• %s x%d<br>",
                         complemento.complemento.nombre,
                         complemento.cantidad);
             }
@@ -62,7 +92,22 @@ public class ConfirmacionAdicionProductoPanel extends javax.swing.JPanel {
             this.complementosLabel.setText(texto);
         }
     }
-    
+
+
+    // --- BOTONES: Solo notifican al controlador ---
+
+    private void atrasBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        if (this.controlador != null) {
+            // El controlador decide a qué panel ir
+            this.controlador.onNavegarAtrasDesdeConfirmacion();
+        }
+    }
+
+    private void confirmarProductoPedidoBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        if (this.controlador != null) {
+            this.controlador.onConfirmarAdicionProducto();
+        }
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -163,24 +208,6 @@ public class ConfirmacionAdicionProductoPanel extends javax.swing.JPanel {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void atrasBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atrasBtnActionPerformed
-        //this.parent.actualizarMontoTotalDetallePedido();
-        //this.parent.mostrarComplementosPanel();
-    }//GEN-LAST:event_atrasBtnActionPerformed
-
-    private void confirmarProductoPedidoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarProductoPedidoBtnActionPerformed
-        // Usa this.detalle en lugar de pedido.getDetalleActual()
-        this.pedido.agregarDetallePedido(this.detalle); 
-        this.pedido.reiniciarDetalleActual();
-        
-        System.out.println("Detalles pedido: " + this.pedido.getDetallesPedido().size());
-        
-        // ¡Importante! Reinicia el detalle DESPUÉS de agregarlo y ANTES de salir.
-        //this.pedido.reiniciarDetalleActual(); 
-        //this.parent.actualizarListaPedido();
-        //this.parent.mostrarProductosPanel();
-    }//GEN-LAST:event_confirmarProductoPedidoBtnActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

@@ -5,8 +5,10 @@
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -20,6 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import mx.edu.itson.cafeteriauniversitaria.dtonegocios.*;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.controlador.RealizarPedidoControlador;
 
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.observadores.RealizarPedidoObserver;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.observadores.vista.PersonalizarProductoObserver;
@@ -36,7 +39,7 @@ import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel.Var
  *
  * @author Saul Neri
  */
-public class FrameRealizarPedido extends JFrame implements PersonalizarProductoObserver, RealizarPedidoObserver {
+public class FrameRealizarPedido extends JFrame implements PropertyChangeListener {
 
     private List<ProductoDTO> productos;
     private DetallePedidoDTO detalleAEliminar;
@@ -54,28 +57,121 @@ public class FrameRealizarPedido extends JFrame implements PersonalizarProductoO
 
     private PedidoHandler pedido = PedidoHandler.getInstance();
 
-    /**
-     * Creates new form FramePersonalizarProducto
-     */
+    private CardLayout layoutPanel;
+    private RealizarPedidoControlador controlador; // Referencia al Controlador
+
     public FrameRealizarPedido(List<ProductoDTO> productos) {
         initComponents();
-
-        //this.setTitle("Realizar Pedido");
         
-        this.productos = productos;
+        // ... (configuración de tu CardLayout)
+        
+        // ¡LA VISTA YA NO GUARDA EL ESTADO!
+        // this.productos = productos; <-- QUITAR
+        // this.pedidos = new ArrayList<>(); <-- QUITAR
+        
+        // Los paneles se crean, pero no manejan lógica
+        this.productosPanel = new ProductosPanel(productos);
+        this.tamanosPanel = new TamanosPanel();
+        this.variantesPanel = new VariantesPanel();
+        this.complementosPanel = new SeleccionComplementosPanel();
+        this.confirmacionAdicionPanel = new ConfirmacionAdicionProductoPanel();
+        // ...
+        
+        this.panelFlujo.add(this.productosPanel, "productos");
+        this.panelFlujo.add(this.tamanosPanel, "tamanos");
 
-        this.panelFlujo.setLayout(new java.awt.BorderLayout());
+        this.panelFlujo.add(this.productosPanel, "productos");
+        this.panelFlujo.add(this.tamanosPanel, "tamanos");
+        this.panelFlujo.add(this.variantesPanel, "variantes");
+        this.panelFlujo.add(this.complementosPanel, "complementos");
+        this.panelFlujo.add(this.confirmacionAdicionPanel, "confirmacion");
 
-        this.listaProductosScrollPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        this.listaProductosScrollPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-
-        this.productosPanel = new ProductosPanel(this, productos);
-
-        //this.mostrarProductosPanel();
-        //this.actualizarListaPedido();
+        // 4. ¡EL PASO QUE ARREGLA EL TAMAÑO!
+        // Añade estas líneas AL FINAL del constructor:
+        this.pack(); // Hace que el Frame se ajuste al tamaño de sus componentes
+        this.setLocationRelativeTo(null);
+        // ...etc.
     }
     
+    // La Vista necesita una forma de hablar con el Controlador
+    public void setControlador(RealizarPedidoControlador controlador) {
+        this.controlador = controlador;
+        
+        // Conecta los eventos de UI al Controlador
+        this.eliminarDetalleBtn.addActionListener(e -> controlador.onEliminarDetalle());
+        this.completarPedidoBtn.addActionListener(e -> controlador.onCompletarPedido());
+        
+        // También pasa el controlador a los sub-paneles
+        this.productosPanel.setControlador(controlador);
+        this.tamanosPanel.setControlador(controlador);
+        // ...etc.
+    }
     
+    public void cargarDatosTamanos(Set<TamanoDTO> tamanos) {
+        this.tamanosPanel.cargarDatos(tamanos);
+    }
+
+    public void cargarDatosVariantes(List<VarianteProductoDTO> variantes) {
+        this.variantesPanel.cargarDatos(variantes);
+    }
+    
+    public void cargarDatosComplementos(List<ComplementoDTO> complementos) {
+        this.complementosPanel.cargarDatos(complementos);
+    }
+
+    public void cargarDatosConfirmacion(DetallePedidoDTO detalle) {
+        this.confirmacionAdicionPanel.cargarDatos(detalle);
+    }
+    
+    // Método para que el Controlador cambie de panel
+    public void mostrarPanel(String nombrePanel) {
+        this.layoutPanel.show(this.panelFlujo, nombrePanel);
+    }
+    
+    // ¡AQUÍ ESTÁ LA MAGIA!
+    // Este método se llama AUTOMÁTICAMENTE cuando el Modelo dice "firePropertyChange"
+    @Override
+    public void propertyChange(java.beans.PropertyChangeEvent evt) {
+        
+        // Si el Modelo nos dice que la lista de pedidos cambió...
+        if ("listaPedidosActualizada".equals(evt.getPropertyName())) {
+            // ...la Vista actualiza la JList
+            List<DetallePedidoDTO> nuevosDetalles = (List<DetallePedidoDTO>) evt.getNewValue();
+            actualizarListaPedido(nuevosDetalles); // Este método ahora solo actualiza la UI
+            
+            // También actualizamos el total del *pedido completo*
+            float montoTotal = this.controlador.getMontoTotalPedido(); // Pregunta al controlador
+            completarPedidoBtn.setText(String.format("Completar Pedido ($%.2f)", montoTotal));
+            completarPedidoBtn.setEnabled(!nuevosDetalles.isEmpty());
+        }
+        
+        // Si el Modelo dice que el *detalle actual* cambió...
+        if ("detalleActualizado".equals(evt.getPropertyName())) {
+            // ...la Vista actualiza el subtotal
+            DetallePedidoDTO detalle = (DetallePedidoDTO) evt.getNewValue();
+            float monto = (detalle.producto != null) ? detalle.obtenerMontoTotal() : 0.0f;
+            this.montoTotalDetalleLabel.setText(String.format("$%.2f", monto));
+        }
+    }
+    
+    // Este método AHORA es "tonto". Solo dibuja lo que le pasan.
+    public void actualizarListaPedido(List<DetallePedidoDTO> detalles) {
+        DefaultListModel<DetallePedidoDTO> modeloLista = new DefaultListModel<>();
+        modeloLista.addAll(detalles);
+        
+        JList<DetallePedidoDTO> jList = new JList<>(modeloLista);
+        
+        // El listener de la lista AHORA le dice al Controlador qué item se seleccionó
+        jList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                DetallePedidoDTO seleccionado = jList.getSelectedValue();
+                controlador.onDetalleSeleccionado(seleccionado); // Avisa al Controlador
+                eliminarDetalleBtn.setEnabled(seleccionado != null);
+            }
+        });
+
+        this.listaProductosScrollPanel.setViewportView(jList);
+    }
 
     /*
     public void mostrarProductosPanel() {
@@ -423,31 +519,6 @@ public class FrameRealizarPedido extends JFrame implements PersonalizarProductoO
         }
     }//GEN-LAST:event_completarPedidoBtnActionPerformed
 
-    @Override
-    public void seleccionarProducto(ProductoDTO producto) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public void seleccionarTamano(TamanoDTO tamano) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public void seleccionarVariante(VarianteProductoDTO variante) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public void confirmarSeleccionComplementos(List<OpcionComplementoDTO> complementos) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
-    public void confirmarRealizacionPedido() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton completarPedidoBtn;

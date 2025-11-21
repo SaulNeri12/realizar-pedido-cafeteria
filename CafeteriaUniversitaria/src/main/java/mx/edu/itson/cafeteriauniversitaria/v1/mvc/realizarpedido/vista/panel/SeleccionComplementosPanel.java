@@ -11,6 +11,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.controlador.RealizarPedidoControlador;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.FrameRealizarPedido;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.PedidoHandler;
 import mx.edu.itson.cafeteriauniversitaria.dtonegocios.OpcionComplementoDTO;
@@ -24,84 +25,71 @@ import mx.edu.itson.cafeteriauniversitaria.dtonegocios.ProductoDTO;
  */
 public class SeleccionComplementosPanel extends javax.swing.JPanel {
 
-    private FrameRealizarPedido parent;
-    private PedidoHandler pedido = PedidoHandler.getInstance();
+    private RealizarPedidoControlador controlador;
+
+    // Lista de los sub-paneles para poder preguntarles su estado
     private List<ComplementoPanel> panelesComplementos;
 
     /**
-     * Creates new form SeleccionComplementosPanel
+     * Constructor simple, se inicializa vacío.
      */
-    public SeleccionComplementosPanel(FrameRealizarPedido parent) {
+    public SeleccionComplementosPanel() {
         initComponents();
-
-        this.parent = parent;
-
-        this.jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        this.jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        this.panelesComplementos = new ArrayList<>();
+        // Configura tu listaComplementosPanel con un BoxLayout o similar
         this.listaComplementosPanel.setLayout(new BoxLayout(this.listaComplementosPanel, BoxLayout.Y_AXIS));
+    }
 
-        MouseAdapter clickAction = new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                //recalcularMontoTotal();
-            }
-        };
-
-        this.addMouseListener(clickAction);
-
-        this.cargarComplementos();
-        //this.parent.actualizarMontoTotalDetallePedido();
+    public void setControlador(RealizarPedidoControlador controlador) {
+        this.controlador = controlador;
     }
 
     /**
-     * Carga en objetos de tipo "@OpcionComplementoDTO" las opciones que se 
-     * eligieron en los paneles de tipo "@ComplementoPanel". Ademas de mostrar
-     * el nuevo total generado a partir de esta eleccion.
+     * ¡NUEVO MÉTODO!
+     * El controlador lo llama para poblar la lista.
      */
-    public void recalcularMontoTotal() {
+    public void cargarDatos(List<ComplementoDTO> complementosDisponibles) {
+        // 1. Limpia datos anteriores
+        this.listaComplementosPanel.removeAll();
+        this.panelesComplementos.clear();
 
-        if (this.panelesComplementos == null) {
-            return;
+        // 2. Crea los nuevos sub-paneles (ya refactorizados)
+        for (ComplementoDTO comp : complementosDisponibles) {
+            ComplementoPanel panelComp = new ComplementoPanel(comp);
+            this.panelesComplementos.add(panelComp);
+            this.listaComplementosPanel.add(panelComp);
         }
 
-        this.pedido.getDetalleActual().complementos.clear();
-        
-        for (ComplementoPanel cmplPanel : this.panelesComplementos) {
-            OpcionComplementoDTO opcion = cmplPanel.obtenerOpcionComplemento();
+        // 3. Refresca la UI
+        this.listaComplementosPanel.revalidate();
+        this.listaComplementosPanel.repaint();
+    }
+
+    // Botón "Siguiente"
+    private void siguientePanelBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        // 1. Recolecta los datos de los sub-paneles
+        List<OpcionComplementoDTO> complementosSeleccionados = new ArrayList<>();
+        for (ComplementoPanel panelComp : this.panelesComplementos) {
+            OpcionComplementoDTO opcion = panelComp.obtenerOpcionComplemento();
             if (opcion != null) {
-                System.out.println("ahi ta %s...".formatted(opcion));
-                this.pedido.getDetalleActual().complementos.add(opcion);
+                complementosSeleccionados.add(opcion);
             }
         }
 
-        //System.out.println("opciones: %s".formatted(this.pedido.getDetalleActual().complementos));
-        //this.recalcularMontoTotal();
-        //this.parent.actualizarMontoTotalDetallePedido();
-    }
-
-    /**
-     * Carga los paneles de eleccion de complemento a traves de los complementos
-     * que acepta el producto a personalizar.
-     */
-    private void cargarComplementos() {
-        ProductoDTO producto = this.pedido.getDetalleActual().producto;
-
-        if (producto != null) {
-
-            this.panelesComplementos = new ArrayList<>();
-            this.listaComplementosPanel.removeAll();
-
-            for (ComplementoDTO compl : producto.getComplementosAceptados()) {
-                ComplementoPanel panel = new ComplementoPanel(this.parent, this, compl);
-                this.panelesComplementos.add(panel);
-                this.listaComplementosPanel.add(panel);
-            }
-
-            this.listaComplementosPanel.revalidate();
-            this.listaComplementosPanel.repaint();
+        // 2. Notifica al controlador
+        if (this.controlador != null) {
+            this.controlador.onComplementosSeleccionados(complementosSeleccionados);
         }
     }
 
+    // Botón "Atrás"
+    private void atrasBtnActionPerformed(java.awt.event.ActionEvent evt) {
+        // Solo notifica al controlador.
+        // El controlador decidirá si va a "variantes" o "tamanos".
+        if (this.controlador != null) {
+            this.controlador.onNavegarAtrasDesdeComplementos();
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -198,23 +186,6 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel {
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void siguientePanelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_siguientePanelBtnActionPerformed
-        try {
-            this.recalcularMontoTotal();
-            Thread.sleep(500l);
-            //this.parent.actualizarMontoTotalDetallePedido();
-            //this.parent.mostrarConfirmacionAdicionProductoPanel();
-        } catch (InterruptedException ex) {
-            //Logger.getLogger(SeleccionComplementosPanel.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }//GEN-LAST:event_siguientePanelBtnActionPerformed
-
-    private void atrasBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atrasBtnActionPerformed
-        this.pedido.getDetalleActual().complementos.clear();
-        //this.parent.actualizarMontoTotalDetallePedido();
-        //this.parent.mostrarVariantesPanel();
-    }//GEN-LAST:event_atrasBtnActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

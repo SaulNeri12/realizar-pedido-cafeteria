@@ -1,6 +1,7 @@
 
-package mx.edu.itson.cafeteriauniversitaria.dtonegocios;
+package mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1;
 
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.*;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;

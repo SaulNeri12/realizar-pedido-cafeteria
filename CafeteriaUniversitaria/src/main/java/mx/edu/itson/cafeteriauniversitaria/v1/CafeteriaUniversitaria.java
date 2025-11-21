@@ -9,8 +9,11 @@ import java.util.Set;
 import mx.edu.itson.cafeteriauniversitaria.dtonegocios.ComplementoDTO;
 import mx.edu.itson.cafeteriauniversitaria.dtonegocios.ProductoDTO;
 import mx.edu.itson.cafeteriauniversitaria.dtonegocios.TamanoDTO;
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.VarianteProductoDTO;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.controlador.ControladorRealizarPedido;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.controlador.RealizarPedidoControlador;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.modelo.ManejadorPedido;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.modelo.PedidoModel;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.FrameRealizarPedido;
 
 /**
@@ -20,19 +23,18 @@ import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.FrameReal
 public class CafeteriaUniversitaria {
 
     public static void main(String[] args) {
-        ManejadorPedido modelo = new ManejadorPedido();
         
         Set<TamanoDTO> tamanos = new LinkedHashSet<>();
         tamanos.add(new TamanoDTO("Chico", 0.0f));
         tamanos.add(new TamanoDTO("Mediano", 10.0f));
         tamanos.add(new TamanoDTO("Grande", 17.0f));
 
-        Set<String> variantes = new LinkedHashSet<>();
-        variantes.add("Normal");
-        variantes.add("Deslactosado");
-        variantes.add("Leche de Soya");
-        variantes.add("Leche de Almendras");
-        variantes.add("Leche de Coco");
+        Set<VarianteProductoDTO> variantes = new LinkedHashSet<>();
+        variantes.add(new VarianteProductoDTO("Normal"));
+        variantes.add(new VarianteProductoDTO("Deslactosado"));
+        variantes.add(new VarianteProductoDTO("Leche de Soya"));
+        variantes.add(new VarianteProductoDTO("Leche de Almendras"));
+        variantes.add(new VarianteProductoDTO("Leche de Coco"));
 
         Set<ComplementoDTO> complementos = new LinkedHashSet<>();
         complementos.add(new ComplementoDTO("Azucar Morena", 7.0f));
@@ -49,12 +51,21 @@ public class CafeteriaUniversitaria {
         productos.add(new ProductoDTO("Iced Mocha", 60.0f, tamanos, variantes, complementos, "imagenes/icedlatte.png"));
         productos.add(new ProductoDTO("Iced Chai Latte", 58.0f, tamanos, variantes, complementos, "imagenes/icedlatte.png"));
         productos.add(new ProductoDTO("Cold Brew Latte", 57.0f, tamanos, variantes, complementos, "imagenes/icedlatte.png"));
-        
+
+        // 1. Crea los 3 componentes
+        PedidoModel modelo = new PedidoModel();
         FrameRealizarPedido vista = new FrameRealizarPedido(productos);
-        
-        vista.setVisible(true);
-        
-        ControladorRealizarPedido controlador = new ControladorRealizarPedido(vista, modelo);
+        RealizarPedidoControlador controlador = new RealizarPedidoControlador(modelo, vista);
+
+        // 2. Conéctalos
+        vista.setControlador(controlador);
+        modelo.addPropertyChangeListener(vista); // ¡Importante para que la vista escuche al modelo!
+
+        // 3. ¡EL PASO QUE FALTA!
+        // Muestra la aplicación en el hilo de eventos de Swing.
+        java.awt.EventQueue.invokeLater(() -> {
+            vista.setVisible(true);
+        });
         
     }
 }

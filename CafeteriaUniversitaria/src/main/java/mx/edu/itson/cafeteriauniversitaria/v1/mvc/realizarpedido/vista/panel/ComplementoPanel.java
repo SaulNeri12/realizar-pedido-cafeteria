@@ -21,62 +21,35 @@ public class ComplementoPanel extends javax.swing.JPanel {
     private int cantidadActual = 0;
     private float costoTotal = 0.0f;
 
-    private FrameRealizarPedido parent;
-    private SeleccionComplementosPanel seleccionPanel;
-
-    /**
-     * Creates new form ComplementoPanel
-     */
-    public ComplementoPanel(FrameRealizarPedido parent, SeleccionComplementosPanel seleccionPanel, ComplementoDTO complemento) {
+    // ¡Constructor súper simple!
+    public ComplementoPanel(ComplementoDTO complemento) {
         initComponents();
-
-        this.seleccionPanel = seleccionPanel;
-        
         this.complemento = complemento;
-        this.cantidadActual = 0;
-        this.parent = parent;
+        this.nombreComplementoLabel.setText(complemento.nombre);
 
-        this.nombreComplementoLabel.setText(this.complemento.nombre);
-        this.cantidadActualLabel.setText("0");
+        // Configura tus botones para que solo cambien la cantidad local
+        this.agregarComplementoBtn.addActionListener(e -> {
+            this.cantidadActual++;
+            actualizarUI();
+        });
 
-        this.quitarComplementoBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                cantidadActual--;
-
-                if (cantidadActual < 0) {
-                    cantidadActual = 0;
-                    cantidadActualLabel.setText("0");
-                    return;
-                }
-
-                seleccionPanel.recalcularMontoTotal();
-                
-                //parent.actualizarMontoTotalDetallePedido();
-
-                System.out.println("quitar!!!: " + cantidadActual);
-
-                recalcularCostoTotal();
+        this.quitarComplementoBtn.addActionListener(e -> {
+            if (this.cantidadActual > 0) {
+                this.cantidadActual--;
+                actualizarUI();
             }
         });
 
-        this.agregarComplementoBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                cantidadActual++;
-
-                seleccionPanel.recalcularMontoTotal();
-                
-                //parent.actualizarMontoTotalDetallePedido();
-
-                System.out.println("agregar!!!: " + cantidadActual);
-
-                recalcularCostoTotal();
-            }
-        });
+        actualizarUI();
     }
-    
+
+    private void actualizarUI() {
+        this.cantidadActualLabel.setText(String.valueOf(this.cantidadActual));
+        float costoTotal = this.complemento.precio * this.cantidadActual;
+        this.costoTotalComplementoLabel.setText(String.format("$%.2f", costoTotal));
+        this.quitarComplementoBtn.setEnabled(this.cantidadActual > 0);
+    }
+
     /**
      * Obtiene una opcion de complemento si es que la cantidad seleccionada es 
      * mas de 1.
@@ -89,6 +62,7 @@ public class ComplementoPanel extends javax.swing.JPanel {
 
         return null;
     }
+
 
     /**
      * Recalcula y muestra en la misma tarjeta el nuevo precio por la nueva 
