@@ -1,5 +1,5 @@
 
-package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.observadores.vista;
+package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores;
 
 /**
  * Encargado del cambio de paneles en la vista padre (FrameRealizarPedido).
@@ -8,6 +8,6 @@ package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.observadores.v
 public interface PersonalizarProductoObserver extends 
         SeleccionProductoObserver, 
         SeleccionTamanoObserver, 
-        SeleccionVarianteObserver, 
+        SeleccionVarianteProductoObserver, 
         SeleccionComplementosObserver, 
         ConfirmacionAdicionProductoObserver {}

@@ -25,7 +25,7 @@ import mx.edu.itson.cafeteriauniversitaria.dtonegocios.*;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.controlador.RealizarPedidoControlador;
 
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.observadores.RealizarPedidoObserver;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.observadores.vista.PersonalizarProductoObserver;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.PersonalizarProductoObserver;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.PedidoHandler;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.dialogo.ConfirmacionDialogo;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.dialogo.PedidoCompletadoDialogo;
