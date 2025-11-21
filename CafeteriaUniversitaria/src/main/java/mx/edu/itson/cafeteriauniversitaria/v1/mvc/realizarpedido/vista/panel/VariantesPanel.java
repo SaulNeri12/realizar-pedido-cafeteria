@@ -1,37 +1,61 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel;
 
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.SeleccionVarianteProductoObserver;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel.interfaces.ComponenteNavegable;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.VolverAtrasObserver;
+
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.VarianteProductoDTO;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
-import javax.swing.AbstractButton;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
 
+import javax.swing.AbstractButton;
+import javax.swing.JRadioButton;
+import javax.swing.ButtonGroup;
+import javax.swing.JScrollPane;
+import javax.swing.BoxLayout;
+
+import java.util.List;
 
 
 /**
  * Panel que contiene las opciones de las distintas variantes del producto.
  * @author Saul Neri
  */
-public class VariantesPanel extends javax.swing.JPanel {
+public class VariantesPanel extends javax.swing.JPanel implements ComponenteNavegable {
 
-    private List<String> variantes;
-    private String varianteSeleccionada;
+    /**
+     * Variantes disponibles del producto seleccionado.
+     */
+    private List<VarianteProductoDTO> variantes;
     
+    /**
+     * Variante del producto seleccionada.
+     */
+    private VarianteProductoDTO varianteSeleccionada;
+    
+    /**
+     * Grupo de botones usado para la seleccion de una sola variante.
+     */
     private ButtonGroup variantesProductoGroup;
     
     /**
-     * Creates new form VariantesPanel
+     * Observador de la seleccion de la variante del producto.
      */
-    public VariantesPanel(List<String> variantes) {
+    private SeleccionVarianteProductoObserver observador;
+    
+    /**
+     * Observador para el manejo del flujo de componentes.
+     */
+    private VolverAtrasObserver flujoPanelesObserver;
+    
+    /**
+     * Crea un panel en donde se muestran las variantes del producto disponibles para su eleccion.
+     * @param variantes Lista de variantes del producto.
+     */
+    public VariantesPanel(List<VarianteProductoDTO> variantes) {
         initComponents();
         
         this.variantes = variantes;
@@ -43,15 +67,24 @@ public class VariantesPanel extends javax.swing.JPanel {
         this.setupBotonesSeleccionVariante();
     }
     
+    @Override
+    public void setVolverAtrasObserver(VolverAtrasObserver observador) {
+        this.flujoPanelesObserver = observador;
+    }
+    
     /**
      * Obtiene la variante seleccionada del grupo de JRadioButtons mostrado en el panel.
      * @return 
      */
-    private String obtenerSeleccionVariante() {
+    private VarianteProductoDTO obtenerSeleccionVariante() {
         if (this.variantesProductoGroup != null) {
             for (AbstractButton button : java.util.Collections.list(this.variantesProductoGroup.getElements())) {
                 if (button.isSelected()) {
-                    return button.getText();
+                    return this.variantes
+                            .stream()
+                            .filter(t -> t.nombre.equals(button.getText()))
+                            .findFirst()
+                            .orElse(null);
                 }
             }
         }
@@ -68,8 +101,8 @@ public class VariantesPanel extends javax.swing.JPanel {
 
         this.listaVariantesProducto.removeAll();
 
-        for (String variante: this.variantes) {
-            JRadioButton btnVariante = new JRadioButton(variante);
+        for (VarianteProductoDTO variante: this.variantes) {
+            JRadioButton btnVariante = new JRadioButton(variante.nombre);
             
             btnVariante.setFont(new Font("SansSerif", Font.BOLD, 18));
             
@@ -217,4 +250,6 @@ public class VariantesPanel extends javax.swing.JPanel {
     private javax.swing.JPanel listaVariantesProducto;
     private javax.swing.JButton siguientePanelBtn;
     // End of variables declaration//GEN-END:variables
+
+    
 }

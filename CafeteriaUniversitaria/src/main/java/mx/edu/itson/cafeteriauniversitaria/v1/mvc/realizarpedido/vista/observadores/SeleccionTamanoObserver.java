@@ -4,7 +4,7 @@
  */
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores;
 
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.TamanoDTO;
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.TamanoDTO;
 
 /**
  *

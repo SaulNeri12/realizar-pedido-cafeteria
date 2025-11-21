@@ -4,18 +4,41 @@
  */
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel;
 
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.DetallePedidoDTO;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.ConfirmacionAdicionProductoObserver;
+
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel.interfaces.ComponenteNavegable;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.VolverAtrasObserver;
+
 import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.OpcionComplementoDTO;
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.DetallePedidoDTO;
+
 
 
 /**
  * Panel de confirmacion para anadir un nuevo producto al pedido.
  * @author Saul Neri
  */
-public class ConfirmacionAdicionProductoPanel extends javax.swing.JPanel {
+public class ConfirmacionAdicionProductoPanel extends javax.swing.JPanel implements ComponenteNavegable {
 
+    /**
+     * Informacion del producto a agregar al pedido.
+     */
     private DetallePedidoDTO detalle;
 
+    /**
+     * Observador de la confirmacion de adicion de producto al pediodo.
+     */
+    private ConfirmacionAdicionProductoObserver observador;
+    
+    /**
+     * Observador que detecta solicitudes de cambio de componente en el contenedor (controlador).
+     */
+    private VolverAtrasObserver flujoPanelesObserver;
+    
+    /**
+     * Crea un panel que muestra un resumen del producto a agregar al pedido.
+     * @param detalle Detalle del pedido a agregar.
+     */
     public ConfirmacionAdicionProductoPanel(DetallePedidoDTO detalle) {
         initComponents();
         
@@ -26,6 +49,23 @@ public class ConfirmacionAdicionProductoPanel extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Asigna el observador del panel para detectar confirmaciones de adiciones de producto.
+     * @param observador Observador de la confirmacion.
+     */
+    public void setObservador(ConfirmacionAdicionProductoObserver observador) {
+        this.observador = observador;
+    }
+    
+    @Override
+    public void setVolverAtrasObserver(VolverAtrasObserver observador) {
+        this.flujoPanelesObserver = observador;
+    }
+    
+    /**
+     * Carga los complementos elegidos para el producto en el panel.
+     * @param detalle Detalle del pedido a mostrar.
+     */
     private void cargarComplementosLabel(DetallePedidoDTO detalle) {
         if (detalle == null || detalle.complementos == null || detalle.complementos.isEmpty()) {
             this.complementosLabel.setText("Sin complementos");
@@ -144,12 +184,15 @@ public class ConfirmacionAdicionProductoPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void atrasBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atrasBtnActionPerformed
-        
+        if (this.flujoPanelesObserver != null) {
+            this.flujoPanelesObserver.volverA("complementos");
+        }
     }//GEN-LAST:event_atrasBtnActionPerformed
 
     private void confirmarProductoPedidoBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_confirmarProductoPedidoBtnActionPerformed
-
-        //System.out.println("Detalles pedido: " + this.pedido.getDetallesPedido().size());
+        if (this.observador != null) {
+            this.observador.onConfirmacionAdicionProducto();
+        }
     }//GEN-LAST:event_confirmarProductoPedidoBtnActionPerformed
 
 
@@ -162,4 +205,5 @@ public class ConfirmacionAdicionProductoPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel productoResumenLabel;
     // End of variables declaration//GEN-END:variables
+
 }

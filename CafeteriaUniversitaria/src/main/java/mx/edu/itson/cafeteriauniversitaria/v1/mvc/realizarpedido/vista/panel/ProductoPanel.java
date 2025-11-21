@@ -4,6 +4,10 @@
  */
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel;
 
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.ImageResizer;
+
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.ProductoDTO;
+
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
@@ -11,10 +15,6 @@ import java.awt.event.MouseEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
-
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.ImageResizer;
-
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.ProductoDTO;
 
 /**
  * Panel que se muestra con una imagen y nombre del producto en el panel 
