@@ -4,25 +4,16 @@
  */
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel;
 
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.List;
-import java.util.Set;
 import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.VarianteProductoDTO;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.PedidoHandler;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.FrameRealizarPedido;
 
 
 
@@ -32,56 +23,80 @@ import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.FrameReal
  */
 public class VariantesPanel extends javax.swing.JPanel {
 
-    private FrameRealizarPedido parent;
-    private List<VarianteProductoDTO> variantes;
-    private VarianteProductoDTO varianteSeleccionada;
+    private List<String> variantes;
+    private String varianteSeleccionada;
     
-    private ButtonGroup variantesProductoGrupo;
-    
-    private PedidoHandler pedido = PedidoHandler.getInstance();
+    private ButtonGroup variantesProductoGroup;
     
     /**
      * Creates new form VariantesPanel
      */
-    public VariantesPanel() {
+    public VariantesPanel(List<String> variantes) {
         initComponents();
         
-        this.parent = parent;
         this.variantes = variantes;
         
         this.jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         this.jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         this.listaVariantesProducto.setLayout(new BoxLayout(this.listaVariantesProducto, BoxLayout.Y_AXIS));
+        
+        this.setupBotonesSeleccionVariante();
     }
-
-    public void cargarDatos(List<VarianteProductoDTO> variantes) {
-        // 1. Limpia el panel de datos anteriores
-        this.listaVariantesProducto.removeAll();
-        this.variantesProductoGrupo = new ButtonGroup(); // Reinicia el grupo
-        this.varianteSeleccionada = null;
-        this.siguientePanelBtn.setEnabled(false);
-
-        // 2. Ahora sí, crea los botones (tu lógica de la línea 88)
-        //    (Este es tu método "setupBotonesSeleccionVariante" movido aquí)
-
-        // ¡La lista "variantes" aquí NUNCA es null!
-        for (VarianteProductoDTO variante: variantes) {
-            JRadioButton boton = new JRadioButton(variante.nombre);
-
-            boton.addActionListener(e -> {
-                // Lógica interna de la vista:
-                // solo guarda la selección localmente
-                this.varianteSeleccionada = variante;
-                this.siguientePanelBtn.setEnabled(true);
-            });
-
-            this.variantesProductoGrupo.add(boton);
-            this.listaVariantesProducto.add(boton); // Asumo que tienes un JPanel para esto
+    
+    /**
+     * Obtiene la variante seleccionada del grupo de JRadioButtons mostrado en el panel.
+     * @return 
+     */
+    private String obtenerSeleccionVariante() {
+        if (this.variantesProductoGroup != null) {
+            for (AbstractButton button : java.util.Collections.list(this.variantesProductoGroup.getElements())) {
+                if (button.isSelected()) {
+                    return button.getText();
+                }
+            }
         }
 
-        // 3. Refresca la UI
+        return null;
+    }
+    
+    /**
+     * Se crean los JRadioButton y los muestra en pantalla ademas de asociarlos al 
+     * ButtonGroup para permitir solo la seleccion de una variante.
+     */
+    private void setupBotonesSeleccionVariante() {
+        this.variantesProductoGroup = new ButtonGroup();
+
+        this.listaVariantesProducto.removeAll();
+
+        for (String variante: this.variantes) {
+            JRadioButton btnVariante = new JRadioButton(variante);
+            
+            btnVariante.setFont(new Font("SansSerif", Font.BOLD, 18));
+            
+            btnVariante.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    varianteSeleccionada = obtenerSeleccionVariante();
+                    //pedido.getDetalleActual().variante = varianteSeleccionada;
+                    habilitarBotonSiguiente();
+                    System.out.println("Seleccionada: " + varianteSeleccionada);
+                }
+            });
+            
+            this.variantesProductoGroup.add(btnVariante);
+            this.listaVariantesProducto.add(btnVariante);
+        }
+
         this.listaVariantesProducto.revalidate();
         this.listaVariantesProducto.repaint();
+    }
+    
+    /**
+     * Habilita el boton para pasar a la siguiente pantalla de personalizacion
+     * del producto.
+     */
+    public void habilitarBotonSiguiente() {
+        this.siguientePanelBtn.setEnabled(true);
     }
 
     /**

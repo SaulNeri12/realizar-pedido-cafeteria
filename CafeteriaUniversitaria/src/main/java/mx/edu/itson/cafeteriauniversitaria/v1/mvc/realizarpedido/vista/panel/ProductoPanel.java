@@ -11,8 +11,10 @@ import java.awt.event.MouseEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.ProductoDTO;
+
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.ImageResizer;
+
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.ProductoDTO;
 
 /**
  * Panel que se muestra con una imagen y nombre del producto en el panel 
@@ -42,9 +44,6 @@ public class ProductoPanel extends javax.swing.JPanel {
             Logger.getLogger(ProductoPanel.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        /**
-         * TODO: (1.0) Esto no deberia ir aqui...
-         */
         MouseAdapter clickAction = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
