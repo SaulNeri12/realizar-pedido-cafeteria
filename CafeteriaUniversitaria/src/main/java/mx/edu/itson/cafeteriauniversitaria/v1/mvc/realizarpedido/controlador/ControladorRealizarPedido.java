@@ -31,6 +31,9 @@ public class ControladorRealizarPedido implements RealizarPedidoObserver, Person
     
     public void iniciar() {
         if (this.vista != null) {
+            
+            //this.vista.setP
+                    
             this.vista.setVisible(true);
         }
     }

@@ -6,10 +6,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.ComplementoDTO;
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.ProductoDTO;
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.TamanoDTO;
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.VarianteProductoDTO;
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.ComplementoDTO;
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.ProductoDTO;
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.TamanoDTO;
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.VarianteProductoDTO;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.controlador.ControladorRealizarPedido;
+
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.modelo.RealizarPedidoModelo;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.FrameRealizarPedido;
 
 /**
@@ -48,7 +51,13 @@ public class CafeteriaUniversitaria {
         productos.add(new ProductoDTO("Iced Chai Latte", 58.0f, tamanos, variantes, complementos, "imagenes/icedlatte.png"));
         productos.add(new ProductoDTO("Cold Brew Latte", 57.0f, tamanos, variantes, complementos, "imagenes/icedlatte.png"));
 
-        RealizarPedidoModelo 
+        RealizarPedidoModelo modelo = new RealizarPedidoModelo(productos);
+        
+        FrameRealizarPedido frame = new FrameRealizarPedido();
+        
+        ControladorRealizarPedido controlador = new ControladorRealizarPedido(frame, modelo);
+        
+        controlador.iniciar();
         
     }
 }
