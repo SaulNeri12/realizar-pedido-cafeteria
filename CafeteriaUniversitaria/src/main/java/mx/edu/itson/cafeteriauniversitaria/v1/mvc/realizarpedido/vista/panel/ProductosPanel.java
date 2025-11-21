@@ -14,6 +14,7 @@ public class ProductosPanel extends javax.swing.JPanel {
 
     private List<ProductoDTO> productos;
     private ProductoDTO productoSeleccionado;
+ 
     
     /**
      * Creates new form ProductosPanel

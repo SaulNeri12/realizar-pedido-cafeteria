@@ -28,7 +28,10 @@ public class ProductoPanel extends javax.swing.JPanel {
     private ProductosPanel parent;
     
     /**
-     * Creates new form ProductoPanel
+     * Crea un nuevo panel de producto ligado al contenedor padre para habilitar o deshabilitar
+     * la opcion para pasar al siguiente frame.
+     * @param parent Contenedor padre de las tarjetas de producto
+     * @param producto Informacion del producto a mostrar
      */
     public ProductoPanel(ProductosPanel parent, ProductoDTO producto) {
         initComponents();
