@@ -4,12 +4,10 @@
  */
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores;
 
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.TamanoDTO;
-
 /**
  *
  * @author Saul Neri
  */
-public interface SeleccionTamanoObserver {
-    void onTamanoSeleccionado(TamanoDTO tamano);   
+public interface VolverAtrasObserver {
+    void volverA(String nombreComponente);
 }

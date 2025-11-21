@@ -1,41 +1,72 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel;
 
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
+
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.SeleccionTamanoObserver;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel.interfaces.ComponenteNavegable;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.VolverAtrasObserver;
+
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.ImageResizer;
+
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.ProductoDTO;
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.TamanoDTO;
+
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
-import java.util.List;
-import java.util.Set;
+
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.ProductoDTO;
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.TamanoDTO;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.ImageResizer;
 
+import java.awt.FlowLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+
+import java.util.Set;
 
 
 /**
  * Panel que muestra las distintas elecciones de tamanos para el producto a personalizar.
  * @author Saul Neri
  */
-public class TamanosPanel extends javax.swing.JPanel {
-
-    private ButtonGroup tamanoProductoGroup;
-    private ProductoDTO productoSeleccionado;
-    private ImageIcon tamanoProductoImagen;
-    private TamanoDTO tamanoSeleccionado;
+public class TamanosPanel extends javax.swing.JPanel implements ComponenteNavegable {
 
     /**
-     * Creates new form TamanosPanel
+     * Grupo de botones seleccionables los cuales permiten seleccionar solo
+     * uno de los tamanos del producto seleccionado.
+     */
+    private ButtonGroup tamanoProductoGroup;
+    
+    /**
+     * Variable temporal que contiene el producto seleccionado por el usuario.
+     */
+    private ProductoDTO productoSeleccionado;
+    
+    /**
+     * Imagen usada para mostrar los tamanos de una manera mas visual.
+     */
+    private ImageIcon tamanoProductoImagen;
+    
+    /**
+     * Tamano del producto seleccionado por el usuario a traves del "ButtonGroup".
+     */
+    private TamanoDTO tamanoSeleccionado;
+    
+    /**
+     * Observador de la seleccion del tamano del producto.
+     */
+    private SeleccionTamanoObserver observador;
+    
+    /**
+     * Observador para el manejo del flujo de componentes.
+     */
+    private VolverAtrasObserver flujoPanelesObserver;
+
+    /**
+     * Crea un nuevo panel en el cual se mostraran los tamanos disponibles para el
+     * producto seleccionado.
+     * @param productoSeleccionado Producto del cual se obtendran los tamanos del mismo.
      */
     public TamanosPanel(ProductoDTO productoSeleccionado) {
 
@@ -45,6 +76,14 @@ public class TamanosPanel extends javax.swing.JPanel {
         this.tamanoProductoImagen = new ImageIcon("imagenes/taza-icon.png");
 
         this.setupBotonesSeleccionTamano(productoSeleccionado.getTamanosProducto());
+    }
+    
+    /**
+     * Asigna el observador del panel para detectar una seleccion de tamano de producto.
+     * @param observador Observador de la seleccion de tamano de producto.
+     */
+    public void setObservador(SeleccionTamanoObserver observador) {
+        this.observador = observador;
     }
 
     /**
@@ -127,16 +166,18 @@ public class TamanosPanel extends javax.swing.JPanel {
         this.panelBotonesTamanos.repaint();
     }
 
+    @Override
+    public void setVolverAtrasObserver(VolverAtrasObserver observador) {
+        this.flujoPanelesObserver = observador;
+    }
+            
     /**
      * Carga la seleccion del boton a la clase de utilidad PedidoHandler para el 
      * detalle de pedido actual.
      */
     private void cargarSeleccionTamano() {
         tamanoSeleccionado = obtenerSeleccionTamano();
-        //pedido.getDetalleActual().tamano = tamanoSeleccionado;
         habilitarBotonSiguiente();
-        //this.parent.actualizarMontoTotalDetallePedido();
-        
         System.out.println("Tamano Seleccionado: " + tamanoSeleccionado.nombre);
     }
 
@@ -232,11 +273,15 @@ public class TamanosPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void atrasBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atrasBtnActionPerformed
-        //this.parent.mostrarProductosPanel();
+        if (this.flujoPanelesObserver != null) {
+            this.flujoPanelesObserver.volverA("productos");
+        }
     }//GEN-LAST:event_atrasBtnActionPerformed
 
     private void siguientePanelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_siguientePanelBtnActionPerformed
-        //this.parent.mostrarVariantesPanel();
+        if (this.observador != null) {
+            this.observador.onTamanoSeleccionado(tamanoSeleccionado);
+        }
     }//GEN-LAST:event_siguientePanelBtnActionPerformed
 
 
