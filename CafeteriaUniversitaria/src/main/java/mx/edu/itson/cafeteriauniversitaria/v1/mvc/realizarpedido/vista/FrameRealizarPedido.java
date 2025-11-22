@@ -1,7 +1,9 @@
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista;
 
 
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.PersonalizacionProductoObserver;
 
 /**
@@ -10,7 +12,7 @@ import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observado
  */
 public class FrameRealizarPedido extends javax.swing.JFrame {
 
-    private PersonalizacionProductoObserver observadorPersonalizarProducto;
+    //private PersonalizacionProductoObserver observadorPersonalizarProducto;
     
     /**
      * Creates new form FramePersonalizarProducto
@@ -30,9 +32,20 @@ public class FrameRealizarPedido extends javax.swing.JFrame {
     /**
      * Se asigna el observador del flujo para personalizar un producto.
      * @param observador Observador que detecta cambios den la personalizacion de un detalle de pedido.
-     */
+     *
     public void setPersonalizacionProductoObservador(PersonalizacionProductoObserver observador) {
         this.observadorPersonalizarProducto = observador;
+    }*/
+    
+    /**
+     * Le asigna el panel a mostrar en el frame para el flujo de personalizacion de producto.
+     * @param panel Panel a mostrar.
+     */
+    public void setPanel(JPanel panel) {
+        this.panelFlujo.removeAll();
+        this.panelFlujo.add(panel);
+        this.panelFlujo.revalidate();
+        this.panelFlujo.repaint();
     }
 
 
