@@ -61,10 +61,11 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
         this.jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         this.listaComplementosPanel.setLayout(new BoxLayout(this.listaComplementosPanel, BoxLayout.Y_AXIS));
 
+        
         MouseAdapter clickAction = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                //recalcularMontoTotal();
+                recalcularMontoTotal();
             }
         };
 
@@ -73,6 +74,10 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
         this.cargarComplementos();
     }
 
+    public void setObservador(SeleccionComplementosObserver observador) {
+        this.observador = observador;
+    }
+    
     @Override
     public void setVolverAtrasObserver(VolverAtrasObserver observador) {
         this.observadorNavegacion = observador;
@@ -89,11 +94,13 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
             return;
         }
 
+        this.complementosSeleccionados.clear();
+        
         for (ComplementoPanel cmplPanel : this.panelesComplementos) {
             OpcionComplementoDTO opcion = cmplPanel.obtenerOpcionComplemento();
             if (opcion != null) {
                 System.out.println("ahi ta %s...".formatted(opcion));
-                
+                this.complementosSeleccionados.add(opcion);
             }
         }
     }
@@ -106,7 +113,7 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
         this.panelesComplementos = new ArrayList<>();
         this.listaComplementosPanel.removeAll();
 
-        if (this.complementos != null) {
+        if (this.complementos == null) {
             return;
         }
         
@@ -119,7 +126,10 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
             this.panelesComplementos.add(panel);
             this.listaComplementosPanel.add(panel);
         }
-
+        
+        this.listaComplementosPanel.revalidate();
+        this.listaComplementosPanel.repaint();
+        
     }
 
     /**
@@ -220,6 +230,8 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
     }// </editor-fold>//GEN-END:initComponents
 
     private void siguientePanelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_siguientePanelBtnActionPerformed
+        this.recalcularMontoTotal();
+        
         if (this.observador != null) {
             this.observador.onComplementosSeleccionados(complementosSeleccionados);
         }

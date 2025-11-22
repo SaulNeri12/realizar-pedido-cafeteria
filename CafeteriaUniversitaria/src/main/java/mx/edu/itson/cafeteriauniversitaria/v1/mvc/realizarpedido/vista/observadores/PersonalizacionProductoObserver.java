@@ -10,4 +10,5 @@ public interface PersonalizacionProductoObserver extends
         SeleccionTamanoObserver, 
         SeleccionVarianteProductoObserver, 
         SeleccionComplementosObserver, 
-        ConfirmacionAdicionProductoObserver {}
+        ConfirmacionAdicionProductoObserver,
+        VolverAtrasObserver {}

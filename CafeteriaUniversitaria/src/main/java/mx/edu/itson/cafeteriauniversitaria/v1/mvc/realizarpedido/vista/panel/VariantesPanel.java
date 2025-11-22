@@ -92,6 +92,10 @@ public class VariantesPanel extends javax.swing.JPanel implements ComponenteNave
         return null;
     }
     
+    public void setObservador(SeleccionVarianteProductoObserver observador) {
+        this.observador = observador;
+    }
+    
     /**
      * Se crean los JRadioButton y los muestra en pantalla ademas de asociarlos al 
      * ButtonGroup para permitir solo la seleccion de una variante.
@@ -234,11 +238,15 @@ public class VariantesPanel extends javax.swing.JPanel implements ComponenteNave
     }// </editor-fold>//GEN-END:initComponents
 
     private void atrasBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atrasBtnActionPerformed
-        //this.parent.mostrarTamanosProductoPanel(pedido.getDetalleActual().producto);
+        if (this.flujoPanelesObserver != null) {
+            this.flujoPanelesObserver.volverA("tamanos");
+        }
     }//GEN-LAST:event_atrasBtnActionPerformed
 
     private void siguientePanelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_siguientePanelBtnActionPerformed
-        //this.parent.mostrarComplementosPanel();
+        if (this.observador != null) {
+            this.observador.onVarianteSeleccionada(varianteSeleccionada);
+        }
     }//GEN-LAST:event_siguientePanelBtnActionPerformed
 
 
