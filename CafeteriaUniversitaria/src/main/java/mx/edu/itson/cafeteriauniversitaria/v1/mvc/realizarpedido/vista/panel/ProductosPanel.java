@@ -1,11 +1,15 @@
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel;
 
+import java.awt.Dimension;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.SeleccionProductoObserver;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.VolverAtrasObserver;
+
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel.interfaces.ComponenteNavegable;
+
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.ProductoDTO;
+
 import java.awt.GridLayout;
 import java.util.List;
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.ProductoDTO;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.controlador.RealizarPedidoControlador;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.PedidoHandler;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.FrameRealizarPedido;
 
 /**
  * Panel en el cual se muestran todos los productos en paneles de tipo
@@ -13,28 +17,55 @@ import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.FrameReal
  *
  * @author Saul Neri
  */
-public class ProductosPanel extends javax.swing.JPanel {
+public class ProductosPanel extends javax.swing.JPanel implements ComponenteNavegable {
 
-    private RealizarPedidoControlador controlador;
+    /**
+     * Lista de productos a mostrar en el panel.
+     */
     private List<ProductoDTO> productos;
+
+    /**
+     * Producto seleccionado por el usuario.
+     */
     private ProductoDTO productoSeleccionado;
 
     /**
-     * Creates new form ProductosPanel
+     * Observador de seleccion de producto del panel.
+     */
+    private SeleccionProductoObserver observador;
+
+    /**
+     * Observador para el manejo del flujo de componentes.
+     */
+    private VolverAtrasObserver flujoPanelesObserver;
+
+    /**
+     * Crea un nuevo panel que muestra los productos disponibles en el sistema
+     * en forma de cartas seleccionables.
+     *
+     * @param productos Lista de productos a mostrar en el panel.
      */
     public ProductosPanel(List<ProductoDTO> productos) {
         initComponents();
 
         this.productos = productos;
-        this.productoSeleccionado = productoSeleccionado;
 
+        //this.setPreferredSize(new Dimension(350, 200));
+        //this.listaProductosGrid.setLayout(new GridLayout(0, 3, 10, 10));
         this.listaProductosGrid.setLayout(new GridLayout(3, 2, 10, 10));
+       
+        this.listaProductosGrid.setPreferredSize(null); // Asegura que no tenga un tamaño preferido fijo.
 
         this.cargarProductos();
     }
-    
-    public void setControlador(RealizarPedidoControlador controlador) {
-        this.controlador = controlador;
+
+    /**
+     * Asigna el observador del panel para detectar una seleccion de producto.
+     *
+     * @param observador Observador de la seleccion de producto.
+     */
+    public void setObservador(SeleccionProductoObserver observador) {
+        this.observador = observador;
     }
 
     /**
@@ -43,17 +74,35 @@ public class ProductosPanel extends javax.swing.JPanel {
      */
     private void cargarProductos() {
 
-        //this.parent.getPanelFlujo().removeAll();
-        for (ProductoDTO prdct : this.productos) {
-            ProductoPanel panel = new ProductoPanel(this, prdct);
-            // TODO: (1.0) anadirles un listener aqui...
-            this.listaProductosGrid.add(panel);
-            //this.parent.getPanelFlujo().revalidate();
-            //this.parent.getPanelFlujo().repaint();
+        // 1. Limpiar el panel por si ya tenía componentes.
+        this.listaProductosGrid.removeAll();
+
+        // 2. Iterar y agregar los componentes de producto.
+        if (productos != null) {
+
+            System.out.println("Productos cargados: " + productos.size());
+            
+            for (ProductoDTO producto : productos) {
+                // Suponiendo que tienes una clase ProductoPanel para cada producto.
+                ProductoPanel panelProducto = new ProductoPanel(this, producto);
+                this.listaProductosGrid.add(panelProducto);
+            }
         }
 
-        this.listaProductosGrid.revalidate();
-        this.listaProductosGrid.repaint();
+        System.out.println("elementos en lista: " + this.listaProductosGrid.getComponents().length);
+        
+        // 3. Forzar el recálculo y repintado (¡ESTO ES CLAVE!)
+        this.listaProductosGrid.revalidate(); // Recalcula el layout
+        this.listaProductosGrid.repaint();   // Vuelve a pintar el componente
+
+        // Asegúrate de que el JScrollPane también sepa que su contenido cambió.
+        this.jScrollPane1.revalidate();
+        this.jScrollPane1.repaint();
+    }
+
+    @Override
+    public void setVolverAtrasObserver(VolverAtrasObserver observador) {
+        this.flujoPanelesObserver = observador;
     }
 
     /**
@@ -64,11 +113,8 @@ public class ProductosPanel extends javax.swing.JPanel {
      */
     public void habilitarBotonSiguiente(ProductoDTO productoSeleccionado) {
         this.productoSeleccionado = productoSeleccionado;
-        //this.pedido.getDetalleActual().producto = productoSeleccionado;
         this.siguientePanelBtn.setEnabled(true);
         this.seleccionadoLabel.setText("Seleccionado: " + productoSeleccionado.nombre);
-        //this.parent.actualizarMontoTotalDetallePedido();
-        
     }
 
     /**
@@ -164,8 +210,8 @@ public class ProductosPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void siguientePanelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_siguientePanelBtnActionPerformed
-        if (this.controlador != null && this.productoSeleccionado != null) {
-            this.controlador.onProductoSeleccionado(this.productoSeleccionado);
+        if (this.observador != null) {
+            this.observador.onProductoSeleccionado(this.productoSeleccionado);
         }
     }//GEN-LAST:event_siguientePanelBtnActionPerformed
 
@@ -177,4 +223,5 @@ public class ProductosPanel extends javax.swing.JPanel {
     private javax.swing.JLabel seleccionadoLabel;
     private javax.swing.JButton siguientePanelBtn;
     // End of variables declaration//GEN-END:variables
+
 }

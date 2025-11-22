@@ -1,107 +1,187 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel;
 
-        
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.ProductoDTO;
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.TamanoDTO;
 
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.SeleccionTamanoObserver;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel.interfaces.ComponenteNavegable;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.VolverAtrasObserver;
+
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.ImageResizer;
+
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.ProductoDTO;
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.TamanoDTO;
+
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
-import java.util.List;
-import java.util.Set;
+
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JRadioButton;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.controlador.RealizarPedidoControlador;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.ImageResizer;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.PedidoHandler;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.FrameRealizarPedido;
+
+import java.awt.FlowLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+
+import java.util.Set;
+
 
 /**
  * Panel que muestra las distintas elecciones de tamanos para el producto a personalizar.
  * @author Saul Neri
  */
+public class TamanosPanel extends javax.swing.JPanel implements ComponenteNavegable {
 
-public class TamanosPanel extends javax.swing.JPanel {
-
-    private RealizarPedidoControlador controlador; // Referencia al controlador
+    /**
+     * Grupo de botones seleccionables los cuales permiten seleccionar solo
+     * uno de los tamanos del producto seleccionado.
+     */
+    private ButtonGroup tamanoProductoGroup;
+    
+    /**
+     * Variable temporal que contiene el producto seleccionado por el usuario.
+     */
+    private ProductoDTO productoSeleccionado;
+    
+    /**
+     * Imagen usada para mostrar los tamanos de una manera mas visual.
+     */
+    private ImageIcon tamanoProductoImagen;
+    
+    /**
+     * Tamano del producto seleccionado por el usuario a traves del "ButtonGroup".
+     */
     private TamanoDTO tamanoSeleccionado;
-    private ButtonGroup grupoBotones;
+    
+    /**
+     * Observador de la seleccion del tamano del producto.
+     */
+    private SeleccionTamanoObserver observador;
+    
+    /**
+     * Observador para el manejo del flujo de componentes.
+     */
+    private VolverAtrasObserver flujoPanelesObserver;
 
     /**
-     * ¡Constructor AHORA es simple!
-     * Ya no recibe el producto ni el listener.
+     * Crea un nuevo panel en el cual se mostraran los tamanos disponibles para el
+     * producto seleccionado.
+     * @param productoSeleccionado Producto del cual se obtendran los tamanos del mismo.
      */
-    public TamanosPanel() {
+    public TamanosPanel(ProductoDTO productoSeleccionado) {
+
         initComponents();
-        this.grupoBotones = new ButtonGroup();
-        // Se inicializa vacío
-    }
 
-    public void setControlador(RealizarPedidoControlador controlador) {
-        this.controlador = controlador;
+        this.productoSeleccionado = productoSeleccionado;
+        this.tamanoProductoImagen = new ImageIcon("imagenes/taza-icon.png");
+
+        this.setupBotonesSeleccionTamano(productoSeleccionado.getTamanosProducto());
+    }
+    
+    /**
+     * Asigna el observador del panel para detectar una seleccion de tamano de producto.
+     * @param observador Observador de la seleccion de tamano de producto.
+     */
+    public void setObservador(SeleccionTamanoObserver observador) {
+        this.observador = observador;
     }
 
     /**
-     * ¡NUEVO MÉTODO!
-     * El controlador llamará a esto para poblar el panel.
+     * Obtiene el objeto TamanoDTO a traves del grupo de radio buttons usado para
+     * mostrar dichas opciones de tamanos.
+     * @return Tamano seleccionado.
      */
-    public void cargarDatos(Set<TamanoDTO> tamanos) {
-        // 1. Limpia el panel de datos anteriores
-        this.panelBotonesTamanos.removeAll();
-        this.grupoBotones = new ButtonGroup(); // Reinicia el grupo
-        this.tamanoSeleccionado = null;
-        this.siguientePanelBtn.setEnabled(false);
-
-        // 2. Crea los botones con los nuevos datos
-        // (Este es tu código de antes, pero movido aquí)
-        for (TamanoDTO tamano : tamanos) {
-            // Asumo que tienes un panel custom "BotonTamanoProducto"
-            // o simplemente un JRadioButton
-            JRadioButton boton = new JRadioButton(tamano.nombre);
-            
-            boton.addActionListener(e -> {
-                // Lógica interna de la vista:
-                // solo guarda la selección localmente
-                this.tamanoSeleccionado = tamano;
-                this.siguientePanelBtn.setEnabled(true);
-            });
-            
-            this.grupoBotones.add(boton);
-            this.panelBotonesTamanos.add(boton);
+    private TamanoDTO obtenerSeleccionTamano() {
+        if (this.tamanoProductoGroup != null) {
+            for (AbstractButton button : java.util.Collections.list(this.tamanoProductoGroup.getElements())) {
+                if (button.isSelected()) {
+                    String tamanoNombre = button.getText();
+                    return this.productoSeleccionado.getTamanosProducto()
+                            .stream()
+                            .filter(t -> t.nombre.equals(tamanoNombre))
+                            .findFirst()
+                            .orElse(null);
+                }
+            }
         }
 
-        // 3. Refresca la UI
+        return null;
+    }
+    
+
+
+    /**
+     * Carga los JRadioButton que se usan para mostrar los paneles de eleccion de
+     * tamano.
+     * @param tamanos Set de tamanos disponibles.
+     */
+    private void setupBotonesSeleccionTamano(Set<TamanoDTO> tamanos) {
+        this.tamanoProductoGroup = new ButtonGroup();
+
+        this.panelBotonesTamanos.removeAll();
+
+        int ancho = 32, largo = 32;
+
+        for (TamanoDTO tamano : tamanos) {
+            BotonTamanoProducto btnTamano = new BotonTamanoProducto(tamano.nombre);
+
+            try {
+                ImageIcon imagenReescalada = ImageResizer.resize(this.tamanoProductoImagen, new Dimension(ancho, largo));
+                btnTamano.setImagenTamano(imagenReescalada);
+                btnTamano.setFont(new Font("SansSerif", Font.PLAIN, 18));
+                btnTamano.setBackground(java.awt.Color.WHITE);
+                btnTamano.setOpaque(false);
+                btnTamano.revalidate();
+                btnTamano.repaint();
+
+                MouseAdapter clickAction = new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        BotonTamanoProducto target = (BotonTamanoProducto) e.getComponent();
+                        target.getJRadioButton().setSelected(true);
+                        cargarSeleccionTamano();
+                    }
+                };
+
+                btnTamano.getJRadioButton().addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        cargarSeleccionTamano();
+                    }
+                });
+
+                btnTamano.addMouseListener(clickAction);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                // no hacer nada para no detener la creacion de los botones...
+            }
+
+            this.tamanoProductoGroup.add(btnTamano.getJRadioButton());
+            this.panelBotonesTamanos.add(btnTamano);
+
+            ancho *= 1.25;
+            largo *= 1.25;
+        }
+
         this.panelBotonesTamanos.revalidate();
         this.panelBotonesTamanos.repaint();
     }
 
-    // El botón "siguiente" solo notifica al controlador
-    private void siguientePanelBtnActionPerformed(java.awt.event.ActionEvent evt) {
-        if (this.controlador != null && this.tamanoSeleccionado != null) {
-            // El panel no sabe qué pasa después. Solo avisa.
-            this.controlador.onTamanoSeleccionado(this.tamanoSeleccionado);
-        }
+    @Override
+    public void setVolverAtrasObserver(VolverAtrasObserver observador) {
+        this.flujoPanelesObserver = observador;
     }
-
-    // El botón "atrás" solo notifica
-    private void atrasBtnActionPerformed(java.awt.event.ActionEvent evt) {
-        if (this.controlador != null) {
-            // El controlador decidirá qué panel mostrar
-            this.controlador.onNavegarAtras("productos");
-        }
+            
+    /**
+     * Carga la seleccion del boton a la clase de utilidad PedidoHandler para el 
+     * detalle de pedido actual.
+     */
+    private void cargarSeleccionTamano() {
+        tamanoSeleccionado = obtenerSeleccionTamano();
+        habilitarBotonSiguiente();
+        System.out.println("Tamano Seleccionado: " + tamanoSeleccionado.nombre);
     }
-
 
     /**
      * Habilita el boton para seguir a la pantalla de personalizacion siguiente.
@@ -193,6 +273,18 @@ public class TamanosPanel extends javax.swing.JPanel {
                 .addGap(18, 18, 18))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void atrasBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atrasBtnActionPerformed
+        if (this.flujoPanelesObserver != null) {
+            this.flujoPanelesObserver.volverA("productos");
+        }
+    }//GEN-LAST:event_atrasBtnActionPerformed
+
+    private void siguientePanelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_siguientePanelBtnActionPerformed
+        if (this.observador != null) {
+            this.observador.onTamanoSeleccionado(tamanoSeleccionado);
+        }
+    }//GEN-LAST:event_siguientePanelBtnActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

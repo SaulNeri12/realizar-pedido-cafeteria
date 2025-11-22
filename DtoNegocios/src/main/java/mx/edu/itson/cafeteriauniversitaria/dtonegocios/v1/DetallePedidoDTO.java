@@ -7,12 +7,15 @@ package mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1;
 import mx.edu.itson.cafeteriauniversitaria.dtonegocios.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  *
  * @author Saul Neri
  */
 public class DetallePedidoDTO {
+
+    private String _id;
 
     public ProductoDTO producto;
     public VarianteProductoDTO variante;
@@ -22,6 +25,11 @@ public class DetallePedidoDTO {
 
     public DetallePedidoDTO() {
         this.complementos = new ArrayList<>();
+        this. _id = UUID.randomUUID().toString();
+    }
+    
+    public String getId() {
+        return _id;
     }
 
     public float obtenerMontoTotal() {

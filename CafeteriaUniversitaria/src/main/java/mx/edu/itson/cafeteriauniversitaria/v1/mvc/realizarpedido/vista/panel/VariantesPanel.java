@@ -1,87 +1,139 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel;
 
-import java.awt.Dimension;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.SeleccionVarianteProductoObserver;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel.interfaces.ComponenteNavegable;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.VolverAtrasObserver;
+
+import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.VarianteProductoDTO;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.List;
-import java.util.Set;
+
 import javax.swing.AbstractButton;
-import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
 import javax.swing.JRadioButton;
+import javax.swing.ButtonGroup;
 import javax.swing.JScrollPane;
+import javax.swing.BoxLayout;
 
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.VarianteProductoDTO;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.util.PedidoHandler;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.FrameRealizarPedido;
-
+import java.util.List;
 
 
 /**
  * Panel que contiene las opciones de las distintas variantes del producto.
  * @author Saul Neri
  */
-public class VariantesPanel extends javax.swing.JPanel {
+public class VariantesPanel extends javax.swing.JPanel implements ComponenteNavegable {
 
-    private FrameRealizarPedido parent;
+    /**
+     * Variantes disponibles del producto seleccionado.
+     */
     private List<VarianteProductoDTO> variantes;
-    private VarianteProductoDTO varianteSeleccionada;
-    
-    private ButtonGroup variantesProductoGrupo;
-    
-    private PedidoHandler pedido = PedidoHandler.getInstance();
     
     /**
-     * Creates new form VariantesPanel
+     * Variante del producto seleccionada.
      */
-    public VariantesPanel() {
+    private VarianteProductoDTO varianteSeleccionada;
+    
+    /**
+     * Grupo de botones usado para la seleccion de una sola variante.
+     */
+    private ButtonGroup variantesProductoGroup;
+    
+    /**
+     * Observador de la seleccion de la variante del producto.
+     */
+    private SeleccionVarianteProductoObserver observador;
+    
+    /**
+     * Observador para el manejo del flujo de componentes.
+     */
+    private VolverAtrasObserver flujoPanelesObserver;
+    
+    /**
+     * Crea un panel en donde se muestran las variantes del producto disponibles para su eleccion.
+     * @param variantes Lista de variantes del producto.
+     */
+    public VariantesPanel(List<VarianteProductoDTO> variantes) {
         initComponents();
         
-        this.parent = parent;
         this.variantes = variantes;
         
         this.jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         this.jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         this.listaVariantesProducto.setLayout(new BoxLayout(this.listaVariantesProducto, BoxLayout.Y_AXIS));
+        
+        this.setupBotonesSeleccionVariante();
     }
-
-    public void cargarDatos(List<VarianteProductoDTO> variantes) {
-        // 1. Limpia el panel de datos anteriores
-        this.listaVariantesProducto.removeAll();
-        this.variantesProductoGrupo = new ButtonGroup(); // Reinicia el grupo
-        this.varianteSeleccionada = null;
-        this.siguientePanelBtn.setEnabled(false);
-
-        // 2. Ahora sí, crea los botones (tu lógica de la línea 88)
-        //    (Este es tu método "setupBotonesSeleccionVariante" movido aquí)
-
-        // ¡La lista "variantes" aquí NUNCA es null!
-        for (VarianteProductoDTO variante: variantes) {
-            JRadioButton boton = new JRadioButton(variante.nombre);
-
-            boton.addActionListener(e -> {
-                // Lógica interna de la vista:
-                // solo guarda la selección localmente
-                this.varianteSeleccionada = variante;
-                this.siguientePanelBtn.setEnabled(true);
-            });
-
-            this.variantesProductoGrupo.add(boton);
-            this.listaVariantesProducto.add(boton); // Asumo que tienes un JPanel para esto
+    
+    @Override
+    public void setVolverAtrasObserver(VolverAtrasObserver observador) {
+        this.flujoPanelesObserver = observador;
+    }
+    
+    /**
+     * Obtiene la variante seleccionada del grupo de JRadioButtons mostrado en el panel.
+     * @return 
+     */
+    private VarianteProductoDTO obtenerSeleccionVariante() {
+        if (this.variantesProductoGroup != null) {
+            for (AbstractButton button : java.util.Collections.list(this.variantesProductoGroup.getElements())) {
+                if (button.isSelected()) {
+                    return this.variantes
+                            .stream()
+                            .filter(t -> t.nombre.equals(button.getText()))
+                            .findFirst()
+                            .orElse(null);
+                }
+            }
         }
 
-        // 3. Refresca la UI
+        return null;
+    }
+    
+    public void setObservador(SeleccionVarianteProductoObserver observador) {
+        this.observador = observador;
+    }
+    
+    /**
+     * Se crean los JRadioButton y los muestra en pantalla ademas de asociarlos al 
+     * ButtonGroup para permitir solo la seleccion de una variante.
+     */
+    private void setupBotonesSeleccionVariante() {
+        this.variantesProductoGroup = new ButtonGroup();
+
+        this.listaVariantesProducto.removeAll();
+
+        for (VarianteProductoDTO variante: this.variantes) {
+            JRadioButton btnVariante = new JRadioButton(variante.nombre);
+            
+            btnVariante.setFont(new Font("SansSerif", Font.BOLD, 18));
+            
+            btnVariante.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    varianteSeleccionada = obtenerSeleccionVariante();
+                    //pedido.getDetalleActual().variante = varianteSeleccionada;
+                    habilitarBotonSiguiente();
+                    System.out.println("Seleccionada: " + varianteSeleccionada);
+                }
+            });
+            
+            this.variantesProductoGroup.add(btnVariante);
+            this.listaVariantesProducto.add(btnVariante);
+        }
+
         this.listaVariantesProducto.revalidate();
         this.listaVariantesProducto.repaint();
+    }
+    
+    /**
+     * Habilita el boton para pasar a la siguiente pantalla de personalizacion
+     * del producto.
+     */
+    public void habilitarBotonSiguiente() {
+        this.siguientePanelBtn.setEnabled(true);
     }
 
     /**
@@ -186,11 +238,15 @@ public class VariantesPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void atrasBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atrasBtnActionPerformed
-        //this.parent.mostrarTamanosProductoPanel(pedido.getDetalleActual().producto);
+        if (this.flujoPanelesObserver != null) {
+            this.flujoPanelesObserver.volverA("tamanos");
+        }
     }//GEN-LAST:event_atrasBtnActionPerformed
 
     private void siguientePanelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_siguientePanelBtnActionPerformed
-        //this.parent.mostrarComplementosPanel();
+        if (this.observador != null) {
+            this.observador.onVarianteSeleccionada(varianteSeleccionada);
+        }
     }//GEN-LAST:event_siguientePanelBtnActionPerformed
 
 
@@ -202,4 +258,6 @@ public class VariantesPanel extends javax.swing.JPanel {
     private javax.swing.JPanel listaVariantesProducto;
     private javax.swing.JButton siguientePanelBtn;
     // End of variables declaration//GEN-END:variables
+
+    
 }
