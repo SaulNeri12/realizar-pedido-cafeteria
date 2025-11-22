@@ -39,6 +39,7 @@ public class ProductoPanel extends javax.swing.JPanel {
         this.producto = producto;
         this.parent = parent;
         
+        
         try {
             this.productoImage = new ImageIcon(producto.getImagenUri());
             ImageIcon resized = ImageResizer.resize(this.productoImage, new Dimension(172,172));

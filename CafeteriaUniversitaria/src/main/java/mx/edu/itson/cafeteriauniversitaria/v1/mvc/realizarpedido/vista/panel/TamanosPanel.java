@@ -107,6 +107,8 @@ public class TamanosPanel extends javax.swing.JPanel implements ComponenteNavega
 
         return null;
     }
+    
+
 
     /**
      * Carga los JRadioButton que se usan para mostrar los paneles de eleccion de

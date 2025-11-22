@@ -1,8 +1,8 @@
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel;
 
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.SeleccionComplementosObserver;
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.VolverAtrasObserver;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel.interfaces.ComponenteNavegable;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.VolverAtrasObserver;
 
 import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.OpcionComplementoDTO;
 import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.ComplementoDTO;
@@ -10,70 +10,99 @@ import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.ComplementoDTO;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JScrollPane;
+import javax.swing.BoxLayout;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import javax.swing.BoxLayout;
-import javax.swing.JScrollPane;
-
 
 /**
- * Panel que muestra todas las opciones de complemento disponibles en paneles 
- * de tipo "@ComplementoPanel".
+ * Panel que muestra todas las opciones de complemento disponibles en paneles de
+ * tipo "@ComplementoPanel".
  * @author Saul Neri
  */
 public class SeleccionComplementosPanel extends javax.swing.JPanel implements ComponenteNavegable {
 
     /**
-     * Paneles hijos que contienen la informacion y cantidad de los complementos a elegir.
+     * Paneles de configuracion de seleccion de complementos a mostrar.
      */
     private List<ComplementoPanel> panelesComplementos;
-    
-    /**
-     * Complementos disponibles con los que cuenta el producto.
-     */
-    private List<ComplementoDTO> complementosDisponibles;
 
     /**
-     * Detecta cuando se confirma la seleccion de los complementos elegidos.
+     * Complementos del producto a mostrar.
+     */
+    private List<ComplementoDTO> complementos;
+    
+    /**
+     * Complementos configurados seleccionados.
+     */
+    private List<OpcionComplementoDTO> complementosSeleccionados = new ArrayList<>();
+    
+    /**
+     * Observador que detecta el cambio de pantalla (panel) siguiente.
      */
     private SeleccionComplementosObserver observador;
     
     /**
-     * Observador para el manejo del flujo de componentes.
+     * Observador que detecta la soliciutd de cambio de pantalla anterior.
      */
-    private VolverAtrasObserver flujoPanelesObserver;
-            
+    private VolverAtrasObserver observadorNavegacion;
+    
     /**
-     * Crea un nuevo panel que contiene los complementos disponibles para su seleccion. Se puede seleccionar
-     * la cantidad de cada uno de ellos a traves de sus paneles hijos.
+     * Creates new form SeleccionComplementosPanel
+     * @param complementos Complementos a mostrar en el panel.
      */
     public SeleccionComplementosPanel(List<ComplementoDTO> complementos) {
         initComponents();
 
+        this.complementos = complementos;
+        
         this.jScrollPane1.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         this.jScrollPane1.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         this.listaComplementosPanel.setLayout(new BoxLayout(this.listaComplementosPanel, BoxLayout.Y_AXIS));
 
-        this.complementosDisponibles = complementos;
         
         MouseAdapter clickAction = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                //recalcularMontoTotal();
+                recalcularMontoTotal();
             }
         };
 
         this.addMouseListener(clickAction);
 
         this.cargarComplementos();
-        //this.parent.actualizarMontoTotalDetallePedido();
+    }
+
+    public void setObservador(SeleccionComplementosObserver observador) {
+        this.observador = observador;
     }
     
     @Override
     public void setVolverAtrasObserver(VolverAtrasObserver observador) {
-        this.flujoPanelesObserver = observador;
+        this.observadorNavegacion = observador;
+    }
+    
+    /**
+     * Carga en objetos de tipo "@OpcionComplementoDTO" las opciones que se
+     * eligieron en los paneles de tipo "@ComplementoPanel". Ademas de mostrar
+     * el nuevo total generado a partir de esta eleccion.
+     */
+    public void recalcularMontoTotal() {
+
+        if (this.panelesComplementos == null) {
+            return;
+        }
+
+        this.complementosSeleccionados.clear();
+        
+        for (ComplementoPanel cmplPanel : this.panelesComplementos) {
+            OpcionComplementoDTO opcion = cmplPanel.obtenerOpcionComplemento();
+            if (opcion != null) {
+                System.out.println("ahi ta %s...".formatted(opcion));
+                this.complementosSeleccionados.add(opcion);
+            }
+        }
     }
 
     /**
@@ -81,36 +110,26 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
      * que acepta el producto a personalizar.
      */
     private void cargarComplementos() {
+        this.panelesComplementos = new ArrayList<>();
+        this.listaComplementosPanel.removeAll();
 
-        if (this.complementosDisponibles != null) {
-
-            this.panelesComplementos = new ArrayList<>();
-            this.listaComplementosPanel.removeAll();
-
-            for (ComplementoDTO compl : this.complementosDisponibles) {
-                ComplementoPanel panel = new ComplementoPanel(compl);
-                this.panelesComplementos.add(panel);
-                this.listaComplementosPanel.add(panel);
-            }
-
-            this.listaComplementosPanel.revalidate();
-            this.listaComplementosPanel.repaint();
-        }
-    }
-    
-    /**
-     * Obtiene las opciones de complementos elegidas por el usuario.
-     * @return 
-     */
-    private List<OpcionComplementoDTO> obtenerSeleccionComplementos() {
-        if (this.panelesComplementos != null) {
-            return this.panelesComplementos
-                    .stream()
-                    .map(panel -> panel.obtenerOpcionComplemento())
-                    .collect(Collectors.toList());
+        if (this.complementos == null) {
+            return;
         }
         
-        return new ArrayList<>();
+        if (this.complementos.isEmpty()) {
+            return;
+        }
+        
+        for (ComplementoDTO compl : this.complementos) {
+            ComplementoPanel panel = new ComplementoPanel(compl);
+            this.panelesComplementos.add(panel);
+            this.listaComplementosPanel.add(panel);
+        }
+        
+        this.listaComplementosPanel.revalidate();
+        this.listaComplementosPanel.repaint();
+        
     }
 
     /**
@@ -211,14 +230,16 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
     }// </editor-fold>//GEN-END:initComponents
 
     private void siguientePanelBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_siguientePanelBtnActionPerformed
+        this.recalcularMontoTotal();
+        
         if (this.observador != null) {
-            this.observador.onComplementosSeleccionados(this.obtenerSeleccionComplementos());
+            this.observador.onComplementosSeleccionados(complementosSeleccionados);
         }
     }//GEN-LAST:event_siguientePanelBtnActionPerformed
 
     private void atrasBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_atrasBtnActionPerformed
-        if (this.flujoPanelesObserver != null) {
-            this.flujoPanelesObserver.volverA("variantes");
+        if (this.observadorNavegacion != null) {
+            this.observadorNavegacion.volverA("variantes");
         }
     }//GEN-LAST:event_atrasBtnActionPerformed
 
@@ -231,5 +252,4 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
     private javax.swing.JPanel listaComplementosPanel;
     private javax.swing.JButton siguientePanelBtn;
     // End of variables declaration//GEN-END:variables
-
 }

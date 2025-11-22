@@ -1,6 +1,6 @@
-
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel;
 
+import java.awt.Dimension;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.SeleccionProductoObserver;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.VolverAtrasObserver;
 
@@ -12,7 +12,9 @@ import java.awt.GridLayout;
 import java.util.List;
 
 /**
- * Panel en el cual se muestran todos los productos en paneles de tipo "@ProductoPanel".
+ * Panel en el cual se muestran todos los productos en paneles de tipo
+ * "@ProductoPanel".
+ *
  * @author Saul Neri
  */
 public class ProductosPanel extends javax.swing.JPanel implements ComponenteNavegable {
@@ -21,67 +23,92 @@ public class ProductosPanel extends javax.swing.JPanel implements ComponenteNave
      * Lista de productos a mostrar en el panel.
      */
     private List<ProductoDTO> productos;
-    
+
     /**
      * Producto seleccionado por el usuario.
      */
     private ProductoDTO productoSeleccionado;
- 
+
     /**
      * Observador de seleccion de producto del panel.
      */
     private SeleccionProductoObserver observador;
-    
+
     /**
      * Observador para el manejo del flujo de componentes.
      */
     private VolverAtrasObserver flujoPanelesObserver;
-    
+
     /**
-     * Crea un nuevo panel que muestra los productos disponibles en el sistema en forma de cartas
-     * seleccionables.
+     * Crea un nuevo panel que muestra los productos disponibles en el sistema
+     * en forma de cartas seleccionables.
+     *
      * @param productos Lista de productos a mostrar en el panel.
      */
     public ProductosPanel(List<ProductoDTO> productos) {
         initComponents();
-        
+
         this.productos = productos;
-        
+
+        //this.setPreferredSize(new Dimension(350, 200));
+        //this.listaProductosGrid.setLayout(new GridLayout(0, 3, 10, 10));
         this.listaProductosGrid.setLayout(new GridLayout(3, 2, 10, 10));
        
+        this.listaProductosGrid.setPreferredSize(null); // Asegura que no tenga un tamaño preferido fijo.
+
         this.cargarProductos();
     }
-    
+
     /**
      * Asigna el observador del panel para detectar una seleccion de producto.
+     *
      * @param observador Observador de la seleccion de producto.
      */
     public void setObservador(SeleccionProductoObserver observador) {
         this.observador = observador;
     }
-    
+
     /**
-     * Carga las tarjetas a traves de la lista de productos recibida y los muestra
-     * en paneles de tipo "@ProductoPanel".
+     * Carga las tarjetas a traves de la lista de productos recibida y los
+     * muestra en paneles de tipo "@ProductoPanel".
      */
     private void cargarProductos() {
-        
-        for (ProductoDTO prdct: this.productos) {
-            ProductoPanel panel = new ProductoPanel(this, prdct);
-            this.listaProductosGrid.add(panel);
+
+        // 1. Limpiar el panel por si ya tenía componentes.
+        this.listaProductosGrid.removeAll();
+
+        // 2. Iterar y agregar los componentes de producto.
+        if (productos != null) {
+
+            System.out.println("Productos cargados: " + productos.size());
+            
+            for (ProductoDTO producto : productos) {
+                // Suponiendo que tienes una clase ProductoPanel para cada producto.
+                ProductoPanel panelProducto = new ProductoPanel(this, producto);
+                this.listaProductosGrid.add(panelProducto);
+            }
         }
+
+        System.out.println("elementos en lista: " + this.listaProductosGrid.getComponents().length);
         
-        this.listaProductosGrid.revalidate();
-        this.listaProductosGrid.repaint();
+        // 3. Forzar el recálculo y repintado (¡ESTO ES CLAVE!)
+        this.listaProductosGrid.revalidate(); // Recalcula el layout
+        this.listaProductosGrid.repaint();   // Vuelve a pintar el componente
+
+        // Asegúrate de que el JScrollPane también sepa que su contenido cambió.
+        this.jScrollPane1.revalidate();
+        this.jScrollPane1.repaint();
     }
-    
+
     @Override
     public void setVolverAtrasObserver(VolverAtrasObserver observador) {
         this.flujoPanelesObserver = observador;
     }
-    
+
     /**
-     * Usado por ProductoPanel para habilitar el boton "Siguiente" de este panel (ProductosPanel).
+     * Usado por ProductoPanel para habilitar el boton "Siguiente" de este panel
+     * (ProductosPanel).
+     *
      * @param productoSeleccionado Producto del "ProductoPanel" seleccionado.
      */
     public void habilitarBotonSiguiente(ProductoDTO productoSeleccionado) {
@@ -197,5 +224,4 @@ public class ProductosPanel extends javax.swing.JPanel implements ComponenteNave
     private javax.swing.JButton siguientePanelBtn;
     // End of variables declaration//GEN-END:variables
 
-    
 }
