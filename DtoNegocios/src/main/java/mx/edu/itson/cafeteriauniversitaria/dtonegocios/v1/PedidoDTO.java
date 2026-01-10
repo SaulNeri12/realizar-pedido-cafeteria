@@ -1,20 +1,20 @@
-
 package mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1;
 
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * Contiene toda la informacion de un pedido (detalles de pedido, usuario, monto total, etc).
- * @author Saul Neri
+ * Contiene toda la informacion de un pedido (detalles de pedido, usuario, monto
+ * total, etc).
+ *
+ * @author itson
  */
 public class PedidoDTO {
 
     public String codigoPedido;
     private float montoTotal;
-    //public String usuario;
+    public String usuario;
     public String estado;
 
     public LocalDateTime fechaHoraCreacion;
@@ -23,6 +23,11 @@ public class PedidoDTO {
 
     private List<DetallePedidoDTO> detallesPedido;
 
+    /**
+     * Constructor por defecto.
+     * @param detallesPedido Lista de detalles de pedido 
+     * (productos personalizados).
+     */
     public PedidoDTO(List<DetallePedidoDTO> detallesPedido) {
         this.codigoPedido = UUID.randomUUID().toString();
         this.fechaHoraCreacion = LocalDateTime.now();
@@ -30,8 +35,8 @@ public class PedidoDTO {
     }
 
     /**
-     * Calcula el monto total del pedido a partir de sus detalle de pedidos.
-     * @return montoTotal
+     * Realiza el cálculo del monto total del pedido sumando cada detalle.
+     * @return El costo total acumulado del pedido.
      */
     public float obtenerMontoTotal() {
         if (this.detallesPedido == null) {
@@ -39,9 +44,15 @@ public class PedidoDTO {
         }
 
         this.montoTotal = (float) this.detallesPedido.stream()
-            .mapToDouble(d -> d.obtenerMontoTotal())
-            .sum();
+                .mapToDouble(d -> d.obtenerMontoTotal())
+                .sum();
 
         return this.montoTotal;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Pedido [%s] | Estado: %s | Total: $%.2f | Fecha: %s",
+                codigoPedido, estado, obtenerMontoTotal(), fechaHoraCreacion);
     }
 }

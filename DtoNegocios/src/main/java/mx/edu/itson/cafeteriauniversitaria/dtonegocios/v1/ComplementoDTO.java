@@ -1,25 +1,38 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1;
 
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.*;
-
 /**
- *
- * @author Saul Neri
+ * Representa un complemento disponible para una bebida o alimento.
+ * @author itson
  */
 public class ComplementoDTO {
+
+    private Long id;
     public String nombre;
     public float precio;
-    
+
+    /**
+     * Constructor por defecto.
+     */
     public ComplementoDTO() {
-        
+
     }
     
+    /**
+     * Devuelve el ID del complemento en el sistema.
+     * @return ID del complemento.
+     */
+    public Long getId() {
+        return this.id;
+    }
+
     public ComplementoDTO(String nombre, float precio) {
         this.nombre = nombre;
         this.precio = precio;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s (+$%.2f)", nombre, precio);
     }
 }

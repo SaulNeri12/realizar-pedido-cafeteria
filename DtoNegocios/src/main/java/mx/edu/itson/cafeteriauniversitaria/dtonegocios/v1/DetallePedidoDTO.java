@@ -4,14 +4,14 @@
  */
 package mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1;
 
-import mx.edu.itson.cafeteriauniversitaria.dtonegocios.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 /**
- *
- * @author Saul Neri
+ * Representa un producto personalizado por el usuario para un pedido
+ * en cuestión.
+ * @author itson
  */
 public class DetallePedidoDTO {
 
@@ -25,13 +25,18 @@ public class DetallePedidoDTO {
 
     public DetallePedidoDTO() {
         this.complementos = new ArrayList<>();
-        this. _id = UUID.randomUUID().toString();
+        this._id = UUID.randomUUID().toString();
     }
-    
+
     public String getId() {
         return _id;
     }
 
+    /**
+     * Calcula el costo total del ítem: (Precio Base + Precio Tamaño + Suma de Complementos).
+     * Incluye trazas de depuración por consola para verificar el flujo del cálculo.
+     * @return El monto total calculado para este producto específico.
+     */
     public float obtenerMontoTotal() {
         if (producto == null) {
             return 0.0f;
@@ -73,6 +78,8 @@ public class DetallePedidoDTO {
 
     @Override
     public String toString() {
-        return String.format("%s (%s) - $%.2f", this.producto.nombre, this.tamano, this.obtenerMontoTotal());
+        String varianteNombre = (this.variante != null) ? " (" + this.variante.nombre + ")" : "";
+        return String.format("%s%s - Tamaño: %s - Total Detalle: $%.2f",
+                this.producto.nombre, varianteNombre, this.tamano, this.obtenerMontoTotal());
     }
 }
