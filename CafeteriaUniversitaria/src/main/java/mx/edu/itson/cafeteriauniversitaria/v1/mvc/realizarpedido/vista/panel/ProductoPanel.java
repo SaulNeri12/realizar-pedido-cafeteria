@@ -56,7 +56,7 @@ public class ProductoPanel extends javax.swing.JPanel {
             }
         };
         
-        this.nombreProductoLabel.setText(producto.nombre);
+        this.nombreProductoLabel.setText("%s ($%.2f)".formatted(producto.nombre, producto.precioBase));
         
         this.addMouseListener(clickAction);
     }

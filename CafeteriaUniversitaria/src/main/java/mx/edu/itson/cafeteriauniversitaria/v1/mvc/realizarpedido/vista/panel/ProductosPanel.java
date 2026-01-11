@@ -1,6 +1,5 @@
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel;
 
-import java.awt.Dimension;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.SeleccionProductoObserver;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.VolverAtrasObserver;
 
@@ -15,7 +14,7 @@ import java.util.List;
  * Panel en el cual se muestran todos los productos en paneles de tipo
  * "@ProductoPanel".
  *
- * @author Saul Neri
+ * @author itson
  */
 public class ProductosPanel extends javax.swing.JPanel implements ComponenteNavegable {
 
@@ -74,10 +73,8 @@ public class ProductosPanel extends javax.swing.JPanel implements ComponenteNave
      */
     private void cargarProductos() {
 
-        // 1. Limpiar el panel por si ya tenía componentes.
         this.listaProductosGrid.removeAll();
 
-        // 2. Iterar y agregar los componentes de producto.
         if (productos != null) {
 
             System.out.println("Productos cargados: " + productos.size());
@@ -91,11 +88,9 @@ public class ProductosPanel extends javax.swing.JPanel implements ComponenteNave
 
         System.out.println("elementos en lista: " + this.listaProductosGrid.getComponents().length);
         
-        // 3. Forzar el recálculo y repintado (¡ESTO ES CLAVE!)
-        this.listaProductosGrid.revalidate(); // Recalcula el layout
-        this.listaProductosGrid.repaint();   // Vuelve a pintar el componente
+        this.listaProductosGrid.revalidate();
+        this.listaProductosGrid.repaint();
 
-        // Asegúrate de que el JScrollPane también sepa que su contenido cambió.
         this.jScrollPane1.revalidate();
         this.jScrollPane1.repaint();
     }
@@ -114,7 +109,10 @@ public class ProductosPanel extends javax.swing.JPanel implements ComponenteNave
     public void habilitarBotonSiguiente(ProductoDTO productoSeleccionado) {
         this.productoSeleccionado = productoSeleccionado;
         this.siguientePanelBtn.setEnabled(true);
-        this.seleccionadoLabel.setText("Seleccionado: " + productoSeleccionado.nombre);
+        this.seleccionadoLabel.setText("Seleccionado: %s ($%.2f)".formatted(
+                productoSeleccionado.nombre, 
+                productoSeleccionado.precioBase)
+        );
     }
 
     /**

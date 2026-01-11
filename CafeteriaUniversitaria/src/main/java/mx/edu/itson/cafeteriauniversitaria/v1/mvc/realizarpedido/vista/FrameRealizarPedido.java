@@ -1,16 +1,15 @@
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista;
 
 
-import javax.swing.JPanel;
+import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.modelo.CambiosPedidoObserver;
 import javax.swing.JScrollPane;
-
-import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.PersonalizacionProductoObserver;
+import javax.swing.JPanel;
 
 /**
  *
- * @author Saul Neri
+ * @author itson
  */
-public class FrameRealizarPedido extends javax.swing.JFrame {
+public class FrameRealizarPedido extends javax.swing.JFrame implements CambiosPedidoObserver {
 
     //private PersonalizacionProductoObserver observadorPersonalizarProducto;
     
@@ -287,4 +286,9 @@ public class FrameRealizarPedido extends javax.swing.JFrame {
     private javax.swing.JLabel montoTotalDetalleLabel;
     private javax.swing.JPanel panelFlujo;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void actualizarMontoDetalleActual(float montoNuevo) {
+        this.montoTotalDetalleLabel.setText("$%.2f".formatted(montoNuevo));
+    }
 }

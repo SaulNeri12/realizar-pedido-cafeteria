@@ -40,6 +40,10 @@ public class ControladorRealizarPedido implements RealizarPedidoObserver, Person
         this.vista = vista;
         this.modelo = modelo;
         
+        if (vista != null && modelo != null) {
+            this.modelo.setObservador(this.vista);
+        }
+        
         this.cargarPanelProductos();
     }
     
