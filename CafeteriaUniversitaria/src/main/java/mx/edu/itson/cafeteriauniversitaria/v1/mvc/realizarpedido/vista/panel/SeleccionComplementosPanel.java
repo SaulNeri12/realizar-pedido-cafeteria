@@ -49,6 +49,11 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
     private VolverAtrasObserver observadorNavegacion;
     
     /**
+     * Costo total por todos los complementos elegidos.
+     */
+    private float costoTotalComplementos = 0.0f;
+    
+    /**
      * Creates new form SeleccionComplementosPanel
      * @param complementos Complementos a mostrar en el panel.
      */
@@ -66,6 +71,8 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
             @Override
             public void mouseClicked(MouseEvent e) {
                 recalcularMontoTotal();
+                
+                totalCostoComplementosLbl.setText("Total por complementos: $%.2f".formatted(costoTotalComplementos));
             }
         };
 
@@ -96,9 +103,12 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
 
         this.complementosSeleccionados.clear();
         
+        this.costoTotalComplementos = 0.0f;
+        
         for (ComplementoPanel cmplPanel : this.panelesComplementos) {
             OpcionComplementoDTO opcion = cmplPanel.obtenerOpcionComplemento();
             if (opcion != null) {
+                this.costoTotalComplementos += opcion.obtenerMontoTotal();
                 System.out.println("ahi ta %s...".formatted(opcion));
                 this.complementosSeleccionados.add(opcion);
             }
@@ -147,6 +157,7 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
         jPanel1 = new javax.swing.JPanel();
         siguientePanelBtn = new javax.swing.JButton();
         atrasBtn = new javax.swing.JButton();
+        totalCostoComplementosLbl = new javax.swing.JLabel();
 
         setPreferredSize(new java.awt.Dimension(798, 592));
 
@@ -181,6 +192,10 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
             }
         });
 
+        totalCostoComplementosLbl.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        totalCostoComplementosLbl.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        totalCostoComplementosLbl.setText("jLabel2");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -188,17 +203,21 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(atrasBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(totalCostoComplementosLbl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(siguientePanelBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(atrasBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(siguientePanelBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(atrasBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(siguientePanelBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 73, Short.MAX_VALUE)
+                        .addComponent(totalCostoComplementosLbl, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -209,7 +228,7 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 786, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
@@ -222,7 +241,7 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
                 .addContainerGap()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 413, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -251,5 +270,6 @@ public class SeleccionComplementosPanel extends javax.swing.JPanel implements Co
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel listaComplementosPanel;
     private javax.swing.JButton siguientePanelBtn;
+    private javax.swing.JLabel totalCostoComplementosLbl;
     // End of variables declaration//GEN-END:variables
 }

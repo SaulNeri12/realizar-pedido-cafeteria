@@ -16,7 +16,7 @@ import mx.edu.itson.cafeteriauniversitaria.dtonegocios.v1.DetallePedidoDTO;
 
 /**
  * Panel de confirmacion para anadir un nuevo producto al pedido.
- * @author Saul Neri
+ * @author itson
  */
 public class ConfirmacionAdicionProductoPanel extends javax.swing.JPanel implements ComponenteNavegable {
 
@@ -73,9 +73,10 @@ public class ConfirmacionAdicionProductoPanel extends javax.swing.JPanel impleme
             String texto = "<html>";
             // Itera sobre el detalle recibido
             for (OpcionComplementoDTO complemento : detalle.complementos) { 
-                texto += String.format("%s x%d<br>",
+                texto += String.format("%s x%d = $%.2f<br>",
                         complemento.complemento.nombre,
-                        complemento.cantidad);
+                        complemento.cantidad,
+                        complemento.obtenerMontoTotal());
             }
             texto += "</html>";
             this.complementosLabel.setText(texto);

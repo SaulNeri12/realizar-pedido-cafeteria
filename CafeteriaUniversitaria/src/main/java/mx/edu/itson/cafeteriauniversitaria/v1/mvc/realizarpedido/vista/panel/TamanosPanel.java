@@ -1,6 +1,5 @@
 package mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel;
 
-
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.SeleccionTamanoObserver;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.panel.interfaces.ComponenteNavegable;
 import mx.edu.itson.cafeteriauniversitaria.v1.mvc.realizarpedido.vista.observadores.VolverAtrasObserver;
@@ -25,48 +24,52 @@ import java.awt.Font;
 
 import java.util.Set;
 
-
 /**
- * Panel que muestra las distintas elecciones de tamanos para el producto a personalizar.
+ * Panel que muestra las distintas elecciones de tamanos para el producto a
+ * personalizar.
+ *
  * @author Saul Neri
  */
 public class TamanosPanel extends javax.swing.JPanel implements ComponenteNavegable {
 
     /**
-     * Grupo de botones seleccionables los cuales permiten seleccionar solo
-     * uno de los tamanos del producto seleccionado.
+     * Grupo de botones seleccionables los cuales permiten seleccionar solo uno
+     * de los tamanos del producto seleccionado.
      */
     private ButtonGroup tamanoProductoGroup;
-    
+
     /**
      * Variable temporal que contiene el producto seleccionado por el usuario.
      */
     private ProductoDTO productoSeleccionado;
-    
+
     /**
      * Imagen usada para mostrar los tamanos de una manera mas visual.
      */
     private ImageIcon tamanoProductoImagen;
-    
+
     /**
-     * Tamano del producto seleccionado por el usuario a traves del "ButtonGroup".
+     * Tamano del producto seleccionado por el usuario a traves del
+     * "ButtonGroup".
      */
     private TamanoDTO tamanoSeleccionado;
-    
+
     /**
      * Observador de la seleccion del tamano del producto.
      */
     private SeleccionTamanoObserver observador;
-    
+
     /**
      * Observador para el manejo del flujo de componentes.
      */
     private VolverAtrasObserver flujoPanelesObserver;
 
     /**
-     * Crea un nuevo panel en el cual se mostraran los tamanos disponibles para el
-     * producto seleccionado.
-     * @param productoSeleccionado Producto del cual se obtendran los tamanos del mismo.
+     * Crea un nuevo panel en el cual se mostraran los tamanos disponibles para
+     * el producto seleccionado.
+     *
+     * @param productoSeleccionado Producto del cual se obtendran los tamanos
+     * del mismo.
      */
     public TamanosPanel(ProductoDTO productoSeleccionado) {
 
@@ -77,9 +80,11 @@ public class TamanosPanel extends javax.swing.JPanel implements ComponenteNavega
 
         this.setupBotonesSeleccionTamano(productoSeleccionado.getTamanosProducto());
     }
-    
+
     /**
-     * Asigna el observador del panel para detectar una seleccion de tamano de producto.
+     * Asigna el observador del panel para detectar una seleccion de tamano de
+     * producto.
+     *
      * @param observador Observador de la seleccion de tamano de producto.
      */
     public void setObservador(SeleccionTamanoObserver observador) {
@@ -87,8 +92,9 @@ public class TamanosPanel extends javax.swing.JPanel implements ComponenteNavega
     }
 
     /**
-     * Obtiene el objeto TamanoDTO a traves del grupo de radio buttons usado para
-     * mostrar dichas opciones de tamanos.
+     * Obtiene el objeto TamanoDTO a traves del grupo de radio buttons usado
+     * para mostrar dichas opciones de tamanos.
+     *
      * @return Tamano seleccionado.
      */
     private TamanoDTO obtenerSeleccionTamano() {
@@ -98,7 +104,7 @@ public class TamanosPanel extends javax.swing.JPanel implements ComponenteNavega
                     String tamanoNombre = button.getText();
                     return this.productoSeleccionado.getTamanosProducto()
                             .stream()
-                            .filter(t -> t.nombre.equals(tamanoNombre))
+                            .filter(t -> tamanoNombre.startsWith(t.nombre))
                             .findFirst()
                             .orElse(null);
                 }
@@ -107,12 +113,11 @@ public class TamanosPanel extends javax.swing.JPanel implements ComponenteNavega
 
         return null;
     }
-    
-
 
     /**
-     * Carga los JRadioButton que se usan para mostrar los paneles de eleccion de
-     * tamano.
+     * Carga los JRadioButton que se usan para mostrar los paneles de eleccion
+     * de tamano.
+     *
      * @param tamanos Set de tamanos disponibles.
      */
     private void setupBotonesSeleccionTamano(Set<TamanoDTO> tamanos) {
@@ -123,7 +128,12 @@ public class TamanosPanel extends javax.swing.JPanel implements ComponenteNavega
         int ancho = 32, largo = 32;
 
         for (TamanoDTO tamano : tamanos) {
-            BotonTamanoProducto btnTamano = new BotonTamanoProducto(tamano.nombre);
+            BotonTamanoProducto btnTamano = new BotonTamanoProducto("%s ($%.2f)"
+                    .formatted(
+                            tamano.nombre,
+                            this.productoSeleccionado.precioBase + tamano.precioAdicional
+                    )
+            );
 
             try {
                 ImageIcon imagenReescalada = ImageResizer.resize(this.tamanoProductoImagen, new Dimension(ancho, largo));
@@ -172,15 +182,22 @@ public class TamanosPanel extends javax.swing.JPanel implements ComponenteNavega
     public void setVolverAtrasObserver(VolverAtrasObserver observador) {
         this.flujoPanelesObserver = observador;
     }
-            
+
     /**
-     * Carga la seleccion del boton a la clase de utilidad PedidoHandler para el 
+     * Carga la seleccion del boton a la clase de utilidad PedidoHandler para el
      * detalle de pedido actual.
      */
     private void cargarSeleccionTamano() {
-        tamanoSeleccionado = obtenerSeleccionTamano();
-        habilitarBotonSiguiente();
-        System.out.println("Tamano Seleccionado: " + tamanoSeleccionado.nombre);
+        
+        this.tamanoSeleccionado = this.obtenerSeleccionTamano();
+        
+        if (this.tamanoSeleccionado != null) {
+            habilitarBotonSiguiente();
+            System.out.println("Tamano Seleccionado: " + tamanoSeleccionado.nombre);
+            return;
+        }
+        
+        this.siguientePanelBtn.setEnabled(false);
     }
 
     /**
